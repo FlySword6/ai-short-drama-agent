@@ -1,0 +1,131 @@
+{
+  "schema_version": "0.1",
+  "example": {
+    "title": "赴约，交手之前",
+    "language": "zh-CN",
+    "status": "reference_only",
+    "note": "这是助手手写的早期理解样例，保留旧格式，不是已运行的 Agent 输出。当前数据契约请参照斗破苍穹-数据结构-v0.1.json。"
+  },
+  "source_lines": [
+    { "id": "L03", "text": "场景：云岚宗，一处空地。" },
+    { "id": "L04", "text": "萧炎与纳兰嫣然相对而立。" },
+    { "id": "L05", "text": "萧炎：我来了。今天，把这桩旧事了结。" },
+    { "id": "L06", "text": "纳兰嫣然：你想靠这一战，让我收回当年的决定？" },
+    { "id": "L07", "text": "萧炎：我要的，是你正视站在这里的人。" },
+    { "id": "L08", "text": "纳兰嫣然拔剑，萧炎握紧重尺。" },
+    { "id": "L09", "text": "两人目光相对，谁也没有先动。" }
+  ],
+  "synopsis": {
+    "text": "萧炎赴约，与纳兰嫣然在云岚宗空地对峙并交谈。纳兰嫣然拔剑，萧炎握紧重尺，片段停在真正出招之前。",
+    "source_refs": ["L03", "L04", "L05", "L06", "L07", "L08", "L09"]
+  },
+  "characters": [
+    { "id": "character_xiaoyan", "name": "萧炎", "source_refs": ["L04", "L05", "L07", "L08"] },
+    { "id": "character_nalan", "name": "纳兰嫣然", "source_refs": ["L04", "L06", "L08"] }
+  ],
+  "locations": [
+    { "id": "location_yunlan_courtyard", "name": "云岚宗空地", "source_refs": ["L03"] }
+  ],
+  "props": [
+    { "id": "prop_sword", "name": "剑", "source_refs": ["L08"] },
+    { "id": "prop_heavy_ruler", "name": "重尺", "source_refs": ["L08"] }
+  ],
+  "scenes": [
+    {
+      "id": "scene_01",
+      "title": "云岚宗空地的赴约对峙",
+      "source_refs": ["L03", "L04", "L05", "L06", "L07", "L08", "L09"],
+      "fact": {
+        "location_id": "location_yunlan_courtyard",
+        "participant_ids": ["character_xiaoyan", "character_nalan"],
+        "event": "两人对峙并以对白交锋，随后准备交手。"
+      },
+      "active_draft_id": "draft_01",
+      "drafts": [
+        {
+          "id": "draft_01",
+          "status": "active",
+          "note": "景别、机位、时长与画面安排均为设计建议；original 只保留练习剧本已有的事实。",
+          "shots": [
+            {
+              "id": "shot_01",
+              "source_refs": ["L04", "L05"],
+              "character_ids": ["character_xiaoyan", "character_nalan"],
+              "original": {
+                "action": ["萧炎与纳兰嫣然相对而立。"],
+                "dialogue": [
+                  { "speaker_id": "character_xiaoyan", "text": "我来了。今天，把这桩旧事了结。", "source_ref": "L05" }
+                ]
+              },
+              "design": {
+                "shot_size": "双人中景",
+                "camera": "固定机位，保留两人相对的空间关系。",
+                "visual_action": "两人相对而立，萧炎先开口。",
+                "estimated_duration_seconds": 5
+              }
+            },
+            {
+              "id": "shot_02",
+              "source_refs": ["L06"],
+              "character_ids": ["character_nalan"],
+              "original": {
+                "action": [],
+                "dialogue": [
+                  { "speaker_id": "character_nalan", "text": "你想靠这一战，让我收回当年的决定？", "source_ref": "L06" }
+                ]
+              },
+              "design": {
+                "shot_size": "近景",
+                "camera": "固定机位，拍纳兰嫣然回应。",
+                "visual_action": "纳兰嫣然注视对方，说出质问。",
+                "estimated_duration_seconds": 5
+              }
+            },
+            {
+              "id": "shot_03",
+              "source_refs": ["L07"],
+              "character_ids": ["character_xiaoyan"],
+              "original": {
+                "action": [],
+                "dialogue": [
+                  { "speaker_id": "character_xiaoyan", "text": "我要的，是你正视站在这里的人。", "source_ref": "L07" }
+                ]
+              },
+              "design": {
+                "shot_size": "近景",
+                "camera": "固定机位，拍萧炎回应。",
+                "visual_action": "萧炎直视纳兰嫣然，平静但坚定地回答。",
+                "estimated_duration_seconds": 5
+              }
+            },
+            {
+              "id": "shot_04",
+              "source_refs": ["L08", "L09"],
+              "character_ids": ["character_xiaoyan", "character_nalan"],
+              "prop_ids": ["prop_sword", "prop_heavy_ruler"],
+              "original": {
+                "action": ["纳兰嫣然拔剑，萧炎握紧重尺。", "两人目光相对，谁也没有先动。"],
+                "dialogue": []
+              },
+              "design": {
+                "shot_size": "双人中景",
+                "camera": "固定机位，保持两人同框，不切特写。",
+                "visual_action": "纳兰嫣然拔剑，萧炎握紧重尺；两人目光相对，停在出招前。",
+                "estimated_duration_seconds": 4
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "issues": [
+    {
+      "id": "issue_01",
+      "text": "已确认真人拟真、9:16，整集目标约1–2分钟；本练习的设计时长约19秒，只演示拆解，不能据此验收整集。",
+      "source_refs": [],
+      "blocks_breakdown": false,
+      "affects": ["后续生图和视频制作"]
+    }
+  ]
+}

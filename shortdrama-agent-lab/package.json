@@ -1,0 +1,43 @@
+{
+  "name": "shortdrama-agent-lab",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node --env-file=.env dist/main.js",
+    "dev": "npm run build && npm start",
+    "test": "npm run build && node --test tests/models.test.cjs tests/source-index.test.cjs tests/breakdown-persistence.test.cjs tests/plan-candidate.test.cjs tests/extract-facts-execution.test.cjs tests/pi-executor.test.cjs tests/storyboard.test.cjs tests/http-production.test.cjs",
+    "db:setup": "node scripts/setup-local-db.mjs",
+    "db:up": "docker compose up -d --wait --wait-timeout 120 postgres",
+    "db:down": "docker compose down",
+    "db:status": "docker compose ps",
+    "db:logs": "docker compose logs --tail=100 postgres",
+    "db:psql": "docker compose exec postgres sh -c 'exec psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"'",
+    "db:migrate": "npm run build && node --env-file-if-exists=.env dist/db/migrate.js",
+    "test:db": "npm run build && node --env-file-if-exists=.env scripts/test-db.mjs",
+    "models:list": "node --env-file=.env examples/models-client.mjs list",
+    "models:text": "node --env-file=.env examples/models-client.mjs text",
+    "models:image": "node --env-file=.env examples/models-client.mjs image",
+    "models:smoke": "node --env-file=.env scripts/model-smoke.mjs"
+  },
+  "dependencies": {
+    "@earendil-works/pi-agent-core": "^0.80.6",
+    "@earendil-works/pi-ai": "^0.80.10",
+    "@nestjs/common": "12.1.2",
+    "@nestjs/core": "12.1.2",
+    "@nestjs/platform-fastify": "12.1.2",
+    "@sinclair/typebox": "0.34.52",
+    "ajv": "8.20.0",
+    "pg": "^8.16.3",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.15",
+    "@types/pg": "^8.15.4",
+    "typescript": "5.9.3"
+  }
+}

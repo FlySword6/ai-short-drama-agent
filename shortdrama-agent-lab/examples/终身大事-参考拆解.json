@@ -1,0 +1,1582 @@
+{
+  "schema_version": "reference-draft-0.1",
+  "meta": {
+    "title": "《终身大事》结尾节选：参考拆解草稿",
+    "status": "assistant_draft_pending_user_review",
+    "created_on": "2026-09-14",
+    "generated_by_project_agent": false,
+    "purpose": "明确可审核的输出样例；不作为唯一正确的镜头答案，也不代表项目 Agent 已实现。",
+    "design_note": "本参考有 24 个连续镜头，估计 129 秒；数量和时长均为未经过试演或配音验证的设计建议。"
+  },
+  "source": {
+    "file": "终身大事-结尾节选.txt",
+    "sha256": "3eab570156a90ca3d8f3a96ad446872c7b194e9e083ff7ede89fa0b5ad92a503",
+    "line_count": 21,
+    "reference_convention": "行号从 1 开始；行内字符位置从 0 开始，末端不包含；按 Unicode 码点计数。quote 必须逐字匹配对应原文切片。",
+    "included_content_lines": [
+      5,
+      6,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21
+    ],
+    "metadata_lines": [
+      1,
+      2,
+      4,
+      8
+    ]
+  },
+  "source_refs": {
+    "R_SET": {
+      "line": 5,
+      "start_char": 0,
+      "end_char": 77,
+      "quote": "田宅的会客室。右边有门，通大门。左边有门，通饭厅。背面有一张莎法榻。两旁有两张靠椅。中央一张小圆桌子，桌上有花瓶。桌边有两张坐椅。左边靠壁有一张小写字台。"
+    },
+    "R_DECOR": {
+      "line": 6,
+      "start_char": 0,
+      "end_char": 49,
+      "quote": "墙上挂的是中国字画，夹着两块西洋荷兰派的风景画。这种中西合璧的陈设，狠可表示这家人半新半旧的风气。"
+    },
+    "R_D01": {
+      "line": 9,
+      "start_char": 14,
+      "end_char": 20,
+      "quote": "午饭摆好了。"
+    },
+    "R_D02": {
+      "line": 10,
+      "start_char": 6,
+      "end_char": 29,
+      "quote": "来，来，来。我们吃了饭再谈罢。我肚里饿得狠了。"
+    },
+    "R_D03": {
+      "line": 11,
+      "start_char": 13,
+      "end_char": 42,
+      "quote": "不要哭了。你要自己明白。我们都是想你好。忍住。我们吃饭去。"
+    },
+    "R_D04": {
+      "line": 12,
+      "start_char": 6,
+      "end_char": 12,
+      "quote": "我不要吃饭。"
+    },
+    "R_D05": {
+      "line": 13,
+      "start_char": 6,
+      "end_char": 31,
+      "quote": "不要这样固执。我先去，你定一定心就来。我们等你咧。"
+    },
+    "R_D06": {
+      "line": 14,
+      "start_char": 17,
+      "end_char": 29,
+      "quote": "陈先生还在汽车里等着吗？"
+    },
+    "R_D07": {
+      "line": 15,
+      "start_char": 6,
+      "end_char": 23,
+      "quote": "是的。这是他给你的信，用铅笔写的。"
+    },
+    "R_D08": {
+      "line": 16,
+      "start_char": 10,
+      "end_char": 35,
+      "quote": "“此事只关系我们两人，与别人无关，你该自己决断！”"
+    },
+    "R_D09": {
+      "line": 16,
+      "start_char": 41,
+      "end_char": 50,
+      "quote": "“你该自己决断！”"
+    },
+    "R_D10": {
+      "line": 16,
+      "start_char": 50,
+      "end_char": 60,
+      "quote": "是的，我该自己决断！"
+    },
+    "R_D11": {
+      "line": 16,
+      "start_char": 66,
+      "end_char": 97,
+      "quote": "你进去告诉我爸爸和妈，叫他们先吃饭，不用等我。我要停一会再吃。"
+    },
+    "R_D12": {
+      "line": 17,
+      "start_char": 14,
+      "end_char": 29,
+      "quote": "亚梅，你快来吃饭，菜要冰冷了。"
+    },
+    "R_D13": {
+      "line": 17,
+      "start_char": 35,
+      "end_char": 44,
+      "quote": "你那里去了？亚梅。"
+    },
+    "R_D14": {
+      "line": 18,
+      "start_char": 11,
+      "end_char": 31,
+      "quote": "随他罢。他生了气了，让他平平气就会好了。"
+    },
+    "R_D15": {
+      "line": 18,
+      "start_char": 37,
+      "end_char": 42,
+      "quote": "他出去了？"
+    },
+    "R_D16": {
+      "line": 19,
+      "start_char": 6,
+      "end_char": 23,
+      "quote": "他穿了大衣出去了。怕是回学堂去了。"
+    },
+    "R_D17": {
+      "line": 20,
+      "start_char": 17,
+      "end_char": 22,
+      "quote": "这是什么？"
+    },
+    "R_D18": {
+      "line": 20,
+      "start_char": 29,
+      "end_char": 71,
+      "quote": "“这是孩儿的终身大事。孩儿应该自己决断。孩儿现在坐了陈先生的汽车去了。暂时告辞了。”"
+    },
+    "R_A01": {
+      "line": 9,
+      "start_char": 7,
+      "end_char": 13,
+      "quote": "从左边门出来"
+    },
+    "R_A02": {
+      "line": 10,
+      "start_char": 30,
+      "end_char": 36,
+      "quote": "先走进饭厅去"
+    },
+    "R_A03": {
+      "line": 11,
+      "start_char": 7,
+      "end_char": 12,
+      "quote": "走近他女儿"
+    },
+    "R_A04": {
+      "line": 13,
+      "start_char": 32,
+      "end_char": 39,
+      "quote": "也进饭厅去了。"
+    },
+    "R_A05": {
+      "line": 13,
+      "start_char": 39,
+      "end_char": 54,
+      "quote": "李妈把门随手关上，自己站着不动"
+    },
+    "R_A06": {
+      "line": 14,
+      "start_char": 7,
+      "end_char": 16,
+      "quote": "抬起头来，看见李妈"
+    },
+    "R_A07": {
+      "line": 15,
+      "start_char": 24,
+      "end_char": 34,
+      "quote": "摸出一张纸，递与田女"
+    },
+    "R_A08": {
+      "line": 16,
+      "start_char": 98,
+      "end_char": 106,
+      "quote": "李妈点头自进去。"
+    },
+    "R_A09": {
+      "line": 16,
+      "start_char": 106,
+      "end_char": 118,
+      "quote": "田女士站起来，穿上大衣，"
+    },
+    "R_A10": {
+      "line": 16,
+      "start_char": 118,
+      "end_char": 132,
+      "quote": "在写字台上匆匆写了一张字条，"
+    },
+    "R_A11": {
+      "line": 16,
+      "start_char": 132,
+      "end_char": 141,
+      "quote": "压在桌上花瓶底下。"
+    },
+    "R_A12": {
+      "line": 16,
+      "start_char": 141,
+      "end_char": 157,
+      "quote": "他回头一望，匆匆从右边门出去了。"
+    },
+    "R_A13": {
+      "line": 16,
+      "start_char": 157,
+      "end_char": 161,
+      "quote": "略停一会"
+    },
+    "R_A14": {
+      "line": 17,
+      "start_char": 30,
+      "end_char": 34,
+      "quote": "门里出来"
+    },
+    "R_A15": {
+      "line": 18,
+      "start_char": 32,
+      "end_char": 36,
+      "quote": "门里出来"
+    },
+    "R_A16": {
+      "line": 20,
+      "start_char": 7,
+      "end_char": 16,
+      "quote": "看见花瓶底下的字条"
+    },
+    "R_A17": {
+      "line": 20,
+      "start_char": 23,
+      "end_char": 28,
+      "quote": "取字条念道"
+    },
+    "R_A18": {
+      "line": 21,
+      "start_char": 1,
+      "end_char": 21,
+      "quote": "田太太听了，身子往后一仰，坐倒在靠椅上。"
+    },
+    "R_A19": {
+      "line": 21,
+      "start_char": 21,
+      "end_char": 36,
+      "quote": "田先生冲向右边的门，到了门边，"
+    },
+    "R_A20": {
+      "line": 21,
+      "start_char": 36,
+      "end_char": 56,
+      "quote": "又回头一望，眼睁睁的显出迟疑不决的神气。"
+    },
+    "R_A21": {
+      "line": 21,
+      "start_char": 56,
+      "end_char": 59,
+      "quote": "幕下来"
+    },
+    "R_READ": {
+      "line": 16,
+      "start_char": 7,
+      "end_char": 9,
+      "quote": "读信"
+    },
+    "R_REPEAT": {
+      "line": 16,
+      "start_char": 36,
+      "end_char": 40,
+      "quote": "重念末句"
+    },
+    "R_TO_LI": {
+      "line": 16,
+      "start_char": 61,
+      "end_char": 65,
+      "quote": "对李妈说"
+    },
+    "R_OFF_MOTHER": {
+      "line": 17,
+      "start_char": 7,
+      "end_char": 13,
+      "quote": "戏台里的声音"
+    },
+    "R_OFF_FATHER": {
+      "line": 18,
+      "start_char": 7,
+      "end_char": 10,
+      "quote": "戏台里"
+    },
+    "R_ALIAS_1": {
+      "line": 16,
+      "start_char": 0,
+      "end_char": 2,
+      "quote": "田女"
+    },
+    "R_ALIAS_2": {
+      "line": 16,
+      "start_char": 106,
+      "end_char": 109,
+      "quote": "田女士"
+    },
+    "R_ALIAS_3": {
+      "line": 17,
+      "start_char": 14,
+      "end_char": 16,
+      "quote": "亚梅"
+    }
+  },
+  "synopsis": {
+    "provenance": "source_grounded_summary",
+    "text": "午饭时，田先生与田太太劝女儿去吃饭，女儿拒绝。父母进入饭厅后，亚梅收到李妈递来的陈先生的信，读信并重申应该自己决断。她让李妈转告父母先吃饭，随后穿上大衣、写下字条、压在花瓶底下并离开。父母出来寻找，田先生读到字条称亚梅已乘陈先生的汽车离去；田太太坐倒在靠椅上，田先生冲到门边后回望，显出迟疑。",
+    "source_refs": [
+      "R_D01",
+      "R_D04",
+      "R_A02",
+      "R_A04",
+      "R_A07",
+      "R_D08",
+      "R_D10",
+      "R_D11",
+      "R_A09",
+      "R_A10",
+      "R_A11",
+      "R_A12",
+      "R_D13",
+      "R_D15",
+      "R_D18",
+      "R_A18",
+      "R_A19",
+      "R_A20"
+    ]
+  },
+  "characters": [
+    {
+      "id": "C01",
+      "name": "田先生",
+      "aliases": [],
+      "presence": "onstage",
+      "description": "亚梅的父亲。",
+      "source_refs": [
+        "R_D11",
+        "R_D18"
+      ],
+      "identity_note": "由女儿称爸爸及父亲读字条的上下文归并。"
+    },
+    {
+      "id": "C02",
+      "name": "田太太",
+      "aliases": [],
+      "presence": "onstage",
+      "description": "亚梅的母亲。",
+      "source_refs": [
+        "R_A03",
+        "R_D11"
+      ],
+      "identity_note": "原文称其走近女儿，女儿随后称爸爸和妈。"
+    },
+    {
+      "id": "C03",
+      "name": "亚梅",
+      "aliases": [
+        "田女",
+        "田女士"
+      ],
+      "presence": "onstage",
+      "description": "田先生与田太太的女儿。",
+      "source_refs": [
+        "R_ALIAS_1",
+        "R_ALIAS_2",
+        "R_ALIAS_3",
+        "R_A03",
+        "R_D11"
+      ],
+      "identity_note": "结合连续动作及父母呼唤作身份归并；原文旧式代词“他”保留。"
+    },
+    {
+      "id": "C04",
+      "name": "李妈",
+      "aliases": [],
+      "presence": "onstage",
+      "description": "通知开饭、递信并进入饭厅的人物。",
+      "source_refs": [
+        "R_D01",
+        "R_A07",
+        "R_A08"
+      ],
+      "identity_note": "节选未明确职业、年龄，不补写。"
+    },
+    {
+      "id": "C05",
+      "name": "陈先生",
+      "aliases": [],
+      "presence": "mentioned_only",
+      "description": "信件署属及汽车相关的被提及人物。",
+      "source_refs": [
+        "R_D06",
+        "R_D07",
+        "R_D18"
+      ],
+      "identity_note": "具体关系称谓及外貌未知；本片段不安排出镜。"
+    }
+  ],
+  "locations": [
+    {
+      "id": "L01",
+      "name": "田宅会客室",
+      "presence": "shown",
+      "source_refs": [
+        "R_SET",
+        "R_DECOR"
+      ],
+      "set_notes": "右门通大门，左门通饭厅。写字台与放花瓶的小圆桌是两张桌。莎法榻、靠椅、坐椅、字画与风景画保留为布景描述。"
+    },
+    {
+      "id": "L02",
+      "name": "饭厅",
+      "presence": "offstage_connected_space",
+      "source_refs": [
+        "R_SET",
+        "R_A02",
+        "R_A04"
+      ],
+      "set_notes": "有人物进出与场外对白；本参考镜头均留在会客室，不另外设计饭厅内景。"
+    }
+  ],
+  "props": [
+    {
+      "id": "P01",
+      "name": "陈先生的信（一张纸）",
+      "presence": "shown",
+      "usage": "李妈递给亚梅，亚梅朗读；“铅笔写的”来自李妈台词。",
+      "source_refs": [
+        "R_D07",
+        "R_A07",
+        "R_D08"
+      ]
+    },
+    {
+      "id": "P02",
+      "name": "亚梅留下的字条",
+      "presence": "shown",
+      "usage": "亚梅写下并压在花瓶下；田先生取出朗读。与来信是两份不同纸张。",
+      "source_refs": [
+        "R_A10",
+        "R_A11",
+        "R_A17",
+        "R_D18"
+      ]
+    },
+    {
+      "id": "P03",
+      "name": "花瓶",
+      "presence": "shown",
+      "usage": "放在小圆桌上，用于压字条。",
+      "source_refs": [
+        "R_SET",
+        "R_A11",
+        "R_A16"
+      ]
+    },
+    {
+      "id": "P04",
+      "name": "大衣",
+      "presence": "shown",
+      "usage": "亚梅离开前穿上；颜色、款式未写明。",
+      "source_refs": [
+        "R_A09"
+      ]
+    },
+    {
+      "id": "P05",
+      "name": "写字台",
+      "presence": "shown",
+      "usage": "亚梅写字条的位置。",
+      "source_refs": [
+        "R_SET",
+        "R_A10"
+      ]
+    },
+    {
+      "id": "P06",
+      "name": "小圆桌",
+      "presence": "shown",
+      "usage": "摆放花瓶与字条。",
+      "source_refs": [
+        "R_SET",
+        "R_A11"
+      ]
+    },
+    {
+      "id": "P07",
+      "name": "靠椅",
+      "presence": "shown",
+      "usage": "田太太最后坐倒其上；未明确是哪一把。",
+      "source_refs": [
+        "R_SET",
+        "R_A18"
+      ]
+    },
+    {
+      "id": "P08",
+      "name": "陈先生的汽车",
+      "presence": "mentioned_only",
+      "usage": "对白和字条提及，不补上车或汽车驶离的画面。",
+      "source_refs": [
+        "R_D06",
+        "R_D07",
+        "R_D18"
+      ]
+    }
+  ],
+  "scenes": [
+    {
+      "id": "SC01",
+      "name": "田宅会客室 · 午饭时段",
+      "location_id": "L01",
+      "source_line_start": 9,
+      "source_line_end": 21,
+      "set_source_refs": [
+        "R_SET",
+        "R_DECOR"
+      ],
+      "time": {
+        "label": "午饭时段",
+        "provenance": "contextual_inference",
+        "source_refs": [
+          "R_D01"
+        ],
+        "exact_time": null
+      },
+      "note": "SC01 是程序标识，界面不必显示“第一场”。人物短暂进入相连饭厅，主画面仍在会客室；本设计划为一场。"
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "D01",
+      "speaker_id": "C04",
+      "delivery": "现场说话",
+      "source_ref": "R_D01",
+      "text": "午饭摆好了。"
+    },
+    {
+      "id": "D02",
+      "speaker_id": "C01",
+      "delivery": "现场说话",
+      "source_ref": "R_D02",
+      "text": "来，来，来。我们吃了饭再谈罢。我肚里饿得狠了。"
+    },
+    {
+      "id": "D03",
+      "speaker_id": "C02",
+      "delivery": "现场说话",
+      "source_ref": "R_D03",
+      "text": "不要哭了。你要自己明白。我们都是想你好。忍住。我们吃饭去。"
+    },
+    {
+      "id": "D04",
+      "speaker_id": "C03",
+      "delivery": "现场说话",
+      "source_ref": "R_D04",
+      "text": "我不要吃饭。"
+    },
+    {
+      "id": "D05",
+      "speaker_id": "C02",
+      "delivery": "现场说话",
+      "source_ref": "R_D05",
+      "text": "不要这样固执。我先去，你定一定心就来。我们等你咧。"
+    },
+    {
+      "id": "D06",
+      "speaker_id": "C03",
+      "delivery": "现场说话",
+      "source_ref": "R_D06",
+      "text": "陈先生还在汽车里等着吗？"
+    },
+    {
+      "id": "D07",
+      "speaker_id": "C04",
+      "delivery": "现场说话",
+      "source_ref": "R_D07",
+      "text": "是的。这是他给你的信，用铅笔写的。"
+    },
+    {
+      "id": "D08",
+      "speaker_id": "C03",
+      "delivery": "读信",
+      "source_ref": "R_D08",
+      "text": "“此事只关系我们两人，与别人无关，你该自己决断！”",
+      "delivery_source_ref": "R_READ"
+    },
+    {
+      "id": "D09",
+      "speaker_id": "C03",
+      "delivery": "重念信中末句",
+      "source_ref": "R_D09",
+      "text": "“你该自己决断！”",
+      "delivery_source_ref": "R_REPEAT"
+    },
+    {
+      "id": "D10",
+      "speaker_id": "C03",
+      "delivery": "现场说话",
+      "source_ref": "R_D10",
+      "text": "是的，我该自己决断！"
+    },
+    {
+      "id": "D11",
+      "speaker_id": "C03",
+      "delivery": "对李妈说",
+      "source_ref": "R_D11",
+      "text": "你进去告诉我爸爸和妈，叫他们先吃饭，不用等我。我要停一会再吃。",
+      "delivery_source_ref": "R_TO_LI"
+    },
+    {
+      "id": "D12",
+      "speaker_id": "C02",
+      "delivery": "场外说话",
+      "source_ref": "R_D12",
+      "text": "亚梅，你快来吃饭，菜要冰冷了。",
+      "delivery_source_ref": "R_OFF_MOTHER"
+    },
+    {
+      "id": "D13",
+      "speaker_id": "C02",
+      "delivery": "出门后说话",
+      "source_ref": "R_D13",
+      "text": "你那里去了？亚梅。"
+    },
+    {
+      "id": "D14",
+      "speaker_id": "C01",
+      "delivery": "场外说话",
+      "source_ref": "R_D14",
+      "text": "随他罢。他生了气了，让他平平气就会好了。",
+      "delivery_source_ref": "R_OFF_FATHER"
+    },
+    {
+      "id": "D15",
+      "speaker_id": "C01",
+      "delivery": "出门后说话",
+      "source_ref": "R_D15",
+      "text": "他出去了？"
+    },
+    {
+      "id": "D16",
+      "speaker_id": "C02",
+      "delivery": "现场说话",
+      "source_ref": "R_D16",
+      "text": "他穿了大衣出去了。怕是回学堂去了。"
+    },
+    {
+      "id": "D17",
+      "speaker_id": "C01",
+      "delivery": "现场说话",
+      "source_ref": "R_D17",
+      "text": "这是什么？"
+    },
+    {
+      "id": "D18",
+      "speaker_id": "C01",
+      "delivery": "读字条",
+      "source_ref": "R_D18",
+      "text": "“这是孩儿的终身大事。孩儿应该自己决断。孩儿现在坐了陈先生的汽车去了。暂时告辞了。”"
+    }
+  ],
+  "actions": [
+    {
+      "id": "A01",
+      "kind": "stage_direction",
+      "source_ref": "R_A01"
+    },
+    {
+      "id": "A02",
+      "kind": "stage_direction",
+      "source_ref": "R_A02"
+    },
+    {
+      "id": "A03",
+      "kind": "stage_direction",
+      "source_ref": "R_A03"
+    },
+    {
+      "id": "A04",
+      "kind": "stage_direction",
+      "source_ref": "R_A04"
+    },
+    {
+      "id": "A05",
+      "kind": "stage_direction",
+      "source_ref": "R_A05"
+    },
+    {
+      "id": "A06",
+      "kind": "stage_direction",
+      "source_ref": "R_A06"
+    },
+    {
+      "id": "A07",
+      "kind": "stage_direction",
+      "source_ref": "R_A07"
+    },
+    {
+      "id": "A08",
+      "kind": "stage_direction",
+      "source_ref": "R_A08"
+    },
+    {
+      "id": "A09",
+      "kind": "stage_direction",
+      "source_ref": "R_A09"
+    },
+    {
+      "id": "A10",
+      "kind": "stage_direction",
+      "source_ref": "R_A10"
+    },
+    {
+      "id": "A11",
+      "kind": "stage_direction",
+      "source_ref": "R_A11"
+    },
+    {
+      "id": "A12",
+      "kind": "stage_direction",
+      "source_ref": "R_A12"
+    },
+    {
+      "id": "A13",
+      "kind": "stage_direction",
+      "source_ref": "R_A13"
+    },
+    {
+      "id": "A14",
+      "kind": "stage_direction",
+      "source_ref": "R_A14"
+    },
+    {
+      "id": "A15",
+      "kind": "stage_direction",
+      "source_ref": "R_A15"
+    },
+    {
+      "id": "A16",
+      "kind": "stage_direction",
+      "source_ref": "R_A16"
+    },
+    {
+      "id": "A17",
+      "kind": "stage_direction",
+      "source_ref": "R_A17"
+    },
+    {
+      "id": "A18",
+      "kind": "stage_direction",
+      "source_ref": "R_A18"
+    },
+    {
+      "id": "A19",
+      "kind": "stage_direction",
+      "source_ref": "R_A19"
+    },
+    {
+      "id": "A20",
+      "kind": "stage_direction",
+      "source_ref": "R_A20"
+    },
+    {
+      "id": "A21",
+      "kind": "theatrical_marker",
+      "source_ref": "R_A21"
+    }
+  ],
+  "shots": [
+    {
+      "id": "SH01",
+      "scene_id": "SC01",
+      "order": 1,
+      "source_content": {
+        "summary": "交代会客室，李妈从左门出来通知开饭。",
+        "action_ids": [
+          "A01"
+        ],
+        "dialogue_ids": [
+          "D01"
+        ],
+        "source_refs": [
+          "R_A01",
+          "R_D01"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "全景",
+        "camera": "固定机位，纳入左右门及主要家具。",
+        "estimated_duration_seconds": 5,
+        "on_screen_character_ids": [
+          "C04"
+        ],
+        "prop_ids": [
+          "P03",
+          "P05",
+          "P06",
+          "P07"
+        ],
+        "note": "建立空间关系；本镜头不要求每个人都入画。"
+      }
+    },
+    {
+      "id": "SH02",
+      "scene_id": "SC01",
+      "order": 2,
+      "source_content": {
+        "summary": "田先生招呼吃饭，说完先走进饭厅。",
+        "action_ids": [
+          "A02"
+        ],
+        "dialogue_ids": [
+          "D02"
+        ],
+        "source_refs": [
+          "R_A02",
+          "R_D02"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "中景",
+        "camera": "轻微横摇跟随田先生至左门。",
+        "estimated_duration_seconds": 8,
+        "on_screen_character_ids": [
+          "C01"
+        ],
+        "prop_ids": [],
+        "note": ""
+      }
+    },
+    {
+      "id": "SH03",
+      "scene_id": "SC01",
+      "order": 3,
+      "source_content": {
+        "summary": "田太太走近女儿，劝她一起吃饭。",
+        "action_ids": [
+          "A03"
+        ],
+        "dialogue_ids": [
+          "D03"
+        ],
+        "source_refs": [
+          "R_A03",
+          "R_D03"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "双人中景",
+        "camera": "固定机位。",
+        "estimated_duration_seconds": 10,
+        "on_screen_character_ids": [
+          "C02",
+          "C03"
+        ],
+        "prop_ids": [],
+        "note": "保持两人空间关系；不补写女儿哭泣动作。"
+      }
+    },
+    {
+      "id": "SH04",
+      "scene_id": "SC01",
+      "order": 4,
+      "source_content": {
+        "summary": "亚梅表示不想吃饭。",
+        "action_ids": [],
+        "dialogue_ids": [
+          "D04"
+        ],
+        "source_refs": [
+          "R_D04"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "近景",
+        "camera": "固定机位。",
+        "estimated_duration_seconds": 3,
+        "on_screen_character_ids": [
+          "C03"
+        ],
+        "prop_ids": [],
+        "note": ""
+      }
+    },
+    {
+      "id": "SH05",
+      "scene_id": "SC01",
+      "order": 5,
+      "source_content": {
+        "summary": "田太太说完进入饭厅；李妈关门后留在原地。",
+        "action_ids": [
+          "A04",
+          "A05"
+        ],
+        "dialogue_ids": [
+          "D05"
+        ],
+        "source_refs": [
+          "R_A04",
+          "R_A05",
+          "R_D05"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "中全景",
+        "camera": "固定机位，门与李妈保持在同一画面。",
+        "estimated_duration_seconds": 9,
+        "on_screen_character_ids": [
+          "C02",
+          "C04"
+        ],
+        "prop_ids": [],
+        "note": "两项动作用一个连续镜头呈现。"
+      }
+    },
+    {
+      "id": "SH06",
+      "scene_id": "SC01",
+      "order": 6,
+      "source_content": {
+        "summary": "亚梅抬头看李妈，询问陈先生是否仍在车里。",
+        "action_ids": [
+          "A06"
+        ],
+        "dialogue_ids": [
+          "D06"
+        ],
+        "source_refs": [
+          "R_A06",
+          "R_D06"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "近景",
+        "camera": "固定机位。",
+        "estimated_duration_seconds": 4,
+        "on_screen_character_ids": [
+          "C03"
+        ],
+        "prop_ids": [],
+        "note": ""
+      }
+    },
+    {
+      "id": "SH07",
+      "scene_id": "SC01",
+      "order": 7,
+      "source_content": {
+        "summary": "李妈回答，摸出纸张并递给亚梅。",
+        "action_ids": [
+          "A07"
+        ],
+        "dialogue_ids": [
+          "D07"
+        ],
+        "source_refs": [
+          "R_A07",
+          "R_D07"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "双人中景",
+        "camera": "固定机位，交接纸张的手保持可见。",
+        "estimated_duration_seconds": 6,
+        "on_screen_character_ids": [
+          "C03",
+          "C04"
+        ],
+        "prop_ids": [
+          "P01"
+        ],
+        "note": ""
+      }
+    },
+    {
+      "id": "SH08",
+      "scene_id": "SC01",
+      "order": 8,
+      "source_content": {
+        "summary": "亚梅读出信的内容。",
+        "action_ids": [],
+        "dialogue_ids": [
+          "D08"
+        ],
+        "source_refs": [
+          "R_D08",
+          "R_READ"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "近景",
+        "camera": "固定机位，脸与手中的信同框。",
+        "estimated_duration_seconds": 6,
+        "on_screen_character_ids": [
+          "C03"
+        ],
+        "prop_ids": [
+          "P01"
+        ],
+        "note": "读信者是亚梅，不改成陈先生的配音。"
+      }
+    },
+    {
+      "id": "SH09",
+      "scene_id": "SC01",
+      "order": 9,
+      "source_content": {
+        "summary": "亚梅重念信中末句，再说自己应该决断。",
+        "action_ids": [],
+        "dialogue_ids": [
+          "D09",
+          "D10"
+        ],
+        "source_refs": [
+          "R_D09",
+          "R_D10",
+          "R_REPEAT"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "特写",
+        "camera": "固定机位。",
+        "estimated_duration_seconds": 5,
+        "on_screen_character_ids": [
+          "C03"
+        ],
+        "prop_ids": [],
+        "note": "保留重念和自我表态两次发声，不合并对白。"
+      }
+    },
+    {
+      "id": "SH10",
+      "scene_id": "SC01",
+      "order": 10,
+      "source_content": {
+        "summary": "亚梅让李妈告诉父母先吃饭。",
+        "action_ids": [],
+        "dialogue_ids": [
+          "D11"
+        ],
+        "source_refs": [
+          "R_D11",
+          "R_TO_LI"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "双人中景",
+        "camera": "固定机位。",
+        "estimated_duration_seconds": 9,
+        "on_screen_character_ids": [
+          "C03",
+          "C04"
+        ],
+        "prop_ids": [],
+        "note": ""
+      }
+    },
+    {
+      "id": "SH11",
+      "scene_id": "SC01",
+      "order": 11,
+      "source_content": {
+        "summary": "李妈点头后进去。",
+        "action_ids": [
+          "A08"
+        ],
+        "dialogue_ids": [],
+        "source_refs": [
+          "R_A08"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "中景",
+        "camera": "固定机位，朝左门取景。",
+        "estimated_duration_seconds": 2,
+        "on_screen_character_ids": [
+          "C04"
+        ],
+        "prop_ids": [],
+        "note": ""
+      }
+    },
+    {
+      "id": "SH12",
+      "scene_id": "SC01",
+      "order": 12,
+      "source_content": {
+        "summary": "亚梅起身，穿上大衣。",
+        "action_ids": [
+          "A09"
+        ],
+        "dialogue_ids": [],
+        "source_refs": [
+          "R_A09"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "中景",
+        "camera": "固定机位，保留起身与穿衣动作空间。",
+        "estimated_duration_seconds": 4,
+        "on_screen_character_ids": [
+          "C03"
+        ],
+        "prop_ids": [
+          "P04"
+        ],
+        "note": ""
+      }
+    },
+    {
+      "id": "SH13",
+      "scene_id": "SC01",
+      "order": 13,
+      "source_content": {
+        "summary": "亚梅在写字台上匆匆写字条。",
+        "action_ids": [
+          "A10"
+        ],
+        "dialogue_ids": [],
+        "source_refs": [
+          "R_A10"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "近景",
+        "camera": "固定机位，取手部与写字台局部。",
+        "estimated_duration_seconds": 5,
+        "on_screen_character_ids": [
+          "C03"
+        ],
+        "prop_ids": [
+          "P02",
+          "P05"
+        ],
+        "note": "写字用具具体类型未知；不把来信“用铅笔写”移用到这里。"
+      }
+    },
+    {
+      "id": "SH14",
+      "scene_id": "SC01",
+      "order": 14,
+      "source_content": {
+        "summary": "亚梅把字条压在小圆桌的花瓶下。",
+        "action_ids": [
+          "A11"
+        ],
+        "dialogue_ids": [],
+        "source_refs": [
+          "R_A11"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "特写",
+        "camera": "固定机位，取花瓶底部与手部。",
+        "estimated_duration_seconds": 3,
+        "on_screen_character_ids": [
+          "C03"
+        ],
+        "prop_ids": [
+          "P02",
+          "P03",
+          "P06"
+        ],
+        "note": "人物从写字台移至圆桌的衔接由剪辑表达；两桌不混同。"
+      }
+    },
+    {
+      "id": "SH15",
+      "scene_id": "SC01",
+      "order": 15,
+      "source_content": {
+        "summary": "亚梅回头看一眼，从右门匆匆离开。",
+        "action_ids": [
+          "A12"
+        ],
+        "dialogue_ids": [],
+        "source_refs": [
+          "R_A12"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "中全景",
+        "camera": "轻微横摇跟至右门，停在会客室内。",
+        "estimated_duration_seconds": 5,
+        "on_screen_character_ids": [
+          "C03"
+        ],
+        "prop_ids": [
+          "P04"
+        ],
+        "note": "不跟拍到车旁，不补上车画面。"
+      }
+    },
+    {
+      "id": "SH16",
+      "scene_id": "SC01",
+      "order": 16,
+      "source_content": {
+        "summary": "在亚梅离场后略停一会。",
+        "action_ids": [
+          "A13"
+        ],
+        "dialogue_ids": [],
+        "source_refs": [
+          "R_A13"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "全景",
+        "camera": "固定机位，短暂保留会客室空镜。",
+        "estimated_duration_seconds": 2,
+        "on_screen_character_ids": [],
+        "prop_ids": [
+          "P03",
+          "P06"
+        ],
+        "note": "空镜为“略停一会”的一种设计处理。"
+      }
+    },
+    {
+      "id": "SH17",
+      "scene_id": "SC01",
+      "order": 17,
+      "source_content": {
+        "summary": "先听到田太太场外叫吃饭，随后她出来寻找亚梅。",
+        "action_ids": [
+          "A14"
+        ],
+        "dialogue_ids": [
+          "D12",
+          "D13"
+        ],
+        "source_refs": [
+          "R_A14",
+          "R_D12",
+          "R_D13",
+          "R_OFF_MOTHER"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "中景",
+        "camera": "固定机位，朝左门取景；人物进入画面。",
+        "estimated_duration_seconds": 7,
+        "on_screen_character_ids": [
+          "C02"
+        ],
+        "prop_ids": [],
+        "note": "前一句在门外发声，后一句出门后说；镜头不中断。"
+      }
+    },
+    {
+      "id": "SH18",
+      "scene_id": "SC01",
+      "order": 18,
+      "source_content": {
+        "summary": "先听到田先生场外的话，随后他出来询问女儿是否离开。",
+        "action_ids": [
+          "A15"
+        ],
+        "dialogue_ids": [
+          "D14",
+          "D15"
+        ],
+        "source_refs": [
+          "R_A15",
+          "R_D14",
+          "R_D15",
+          "R_OFF_FATHER"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "中景",
+        "camera": "固定机位，朝左门取景；人物进入画面。",
+        "estimated_duration_seconds": 7,
+        "on_screen_character_ids": [
+          "C01"
+        ],
+        "prop_ids": [],
+        "note": "“生了气了”是父亲的解释；不增补女儿发怒画面。"
+      }
+    },
+    {
+      "id": "SH19",
+      "scene_id": "SC01",
+      "order": 19,
+      "source_content": {
+        "summary": "田太太说女儿穿大衣离开，并猜测她回学堂。",
+        "action_ids": [],
+        "dialogue_ids": [
+          "D16"
+        ],
+        "source_refs": [
+          "R_D16"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "近景",
+        "camera": "固定机位。",
+        "estimated_duration_seconds": 5,
+        "on_screen_character_ids": [
+          "C02"
+        ],
+        "prop_ids": [],
+        "note": "只呈现母亲的猜测，不增加学堂场景。"
+      }
+    },
+    {
+      "id": "SH20",
+      "scene_id": "SC01",
+      "order": 20,
+      "source_content": {
+        "summary": "田先生看见花瓶下的字条，询问是什么。",
+        "action_ids": [
+          "A16"
+        ],
+        "dialogue_ids": [
+          "D17"
+        ],
+        "source_refs": [
+          "R_A16",
+          "R_D17"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "中景",
+        "camera": "固定机位，将田先生与花瓶纳入画面。",
+        "estimated_duration_seconds": 3,
+        "on_screen_character_ids": [
+          "C01"
+        ],
+        "prop_ids": [
+          "P02",
+          "P03",
+          "P06"
+        ],
+        "note": ""
+      }
+    },
+    {
+      "id": "SH21",
+      "scene_id": "SC01",
+      "order": 21,
+      "source_content": {
+        "summary": "田先生取出字条，完整读出内容。",
+        "action_ids": [
+          "A17"
+        ],
+        "dialogue_ids": [
+          "D18"
+        ],
+        "source_refs": [
+          "R_A17",
+          "R_D18"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "近景",
+        "camera": "固定机位，脸与字条同框。",
+        "estimated_duration_seconds": 11,
+        "on_screen_character_ids": [
+          "C01"
+        ],
+        "prop_ids": [
+          "P02"
+        ],
+        "note": "“乘汽车离去”来自字条自述；不插入汽车画面。"
+      }
+    },
+    {
+      "id": "SH22",
+      "scene_id": "SC01",
+      "order": 22,
+      "source_content": {
+        "summary": "田太太听后后仰，坐倒在靠椅上。",
+        "action_ids": [
+          "A18"
+        ],
+        "dialogue_ids": [],
+        "source_refs": [
+          "R_A18"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "中景",
+        "camera": "固定机位，同时容纳人物与靠椅。",
+        "estimated_duration_seconds": 3,
+        "on_screen_character_ids": [
+          "C02"
+        ],
+        "prop_ids": [
+          "P07"
+        ],
+        "note": "不将坐倒解释为昏厥或死亡。"
+      }
+    },
+    {
+      "id": "SH23",
+      "scene_id": "SC01",
+      "order": 23,
+      "source_content": {
+        "summary": "田先生冲向右门，到门边停下。",
+        "action_ids": [
+          "A19"
+        ],
+        "dialogue_ids": [],
+        "source_refs": [
+          "R_A19"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "中全景",
+        "camera": "横摇跟随至门边。",
+        "estimated_duration_seconds": 3,
+        "on_screen_character_ids": [
+          "C01"
+        ],
+        "prop_ids": [],
+        "note": "人物没有走出门。"
+      }
+    },
+    {
+      "id": "SH24",
+      "scene_id": "SC01",
+      "order": 24,
+      "source_content": {
+        "summary": "田先生回头望，显出迟疑不决；片段结束。",
+        "action_ids": [
+          "A20",
+          "A21"
+        ],
+        "dialogue_ids": [],
+        "source_refs": [
+          "R_A20",
+          "R_A21"
+        ]
+      },
+      "design_suggestion": {
+        "provenance": "assistant_design_suggestion",
+        "shot_size": "近景",
+        "camera": "固定机位，停留在回望与迟疑上。",
+        "estimated_duration_seconds": 4,
+        "on_screen_character_ids": [
+          "C01"
+        ],
+        "prop_ids": [],
+        "note": "原文“幕下来”是舞台结束标记；本影视化草稿建议在此结束，不要求出现实体幕布。"
+      }
+    }
+  ],
+  "constraints": {
+    "plot": "保留原剧情",
+    "dialogue": "逐字保留原对白及有意重复",
+    "shot_unit": "一行一个连续镜头",
+    "target_duration_seconds": null,
+    "aspect_ratio": null,
+    "visual_style": null
+  },
+  "issues": [
+    {
+      "id": "Q01",
+      "question": "此前争执的具体原因，以及亚梅和陈先生的确切关系是什么？",
+      "reason": "结尾节选缺少前情。",
+      "handling": "保留未知，仅概括片段内事件；当前基础拆解不阻断。",
+      "blocks_current_breakdown": false,
+      "source_refs": [
+        "R_D02",
+        "R_D08"
+      ]
+    },
+    {
+      "id": "Q02",
+      "question": "是否有目标时长、画幅与表现风格要求？",
+      "reason": "输入没有创作约束。",
+      "handling": "镜头数与时长仅给一个可修改参考，画幅及风格留空；正式生成前有要求再集中补充。",
+      "blocks_current_breakdown": false,
+      "source_refs": []
+    },
+    {
+      "id": "Q03",
+      "question": "人物外貌、年龄、服装细节及季节如何设定？",
+      "reason": "原文只写部分服装及布景，没有足够视觉细节。",
+      "handling": "当前不补写；进入人物图或场景图阶段前再补充，不用大衣推断冬天。",
+      "blocks_current_breakdown": false,
+      "source_refs": [
+        "R_SET",
+        "R_A09"
+      ]
+    },
+    {
+      "id": "Q04",
+      "question": "写字条的书写用具具体是什么？",
+      "reason": "原文说亚梅写字条，未说明用具；铅笔只出现在对陈先生来信的描述中。",
+      "handling": "保留未知；制作写字近景前再选定并标为设计建议。",
+      "blocks_current_breakdown": false,
+      "source_refs": [
+        "R_D07",
+        "R_A10"
+      ]
+    }
+  ],
+  "evidence_boundaries": [
+    {
+      "statement": "“陈先生还在汽车里”等是问答中的信息，“坐了陈先生的汽车去了”是字条自述。",
+      "treatment": "记录人物所说内容，不补成镜头中已经发生的上车、驶离。",
+      "source_refs": [
+        "R_D06",
+        "R_D07",
+        "R_D18"
+      ]
+    },
+    {
+      "statement": "“怕是回学堂去了”是母亲猜测；“他生了气了”是父亲解释。",
+      "treatment": "保留对白，不设学堂场景或额外发怒事件。",
+      "source_refs": [
+        "R_D14",
+        "R_D16"
+      ]
+    },
+    {
+      "statement": "“不要哭了”是母亲的话。",
+      "treatment": "不能只凭这句话新增具体哭泣表演；参考镜头不补写。",
+      "source_refs": [
+        "R_D03"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,975 @@
+{
+  "schemaVersion": "breakdown-data/0.1",
+  "example": {
+    "status": "handwritten_reference_only",
+    "note": "这是助手准备的数据设计样例，不是项目 Agent 运行结果。计划是未采用候选；运行和任务是未启动草稿。",
+    "sourceNotice": "使用既有助手重写练习版，不是小说原文或官方剧本。",
+    "durationNotice": "镜头时长合计约19秒，仅用于结构演示；不代表1–2分钟整集验收已通过。",
+    "timestampNotice": "createdAt 为固定示意时间，不代表真实生产时间。"
+  },
+  "projects": [
+    {
+      "id": "project_demo",
+      "title": "赴约，交手之前",
+      "createdAt": "2026-09-15T00:00:00Z",
+      "currentScriptVersionId": "script_v1",
+      "activePlanRevisionId": null
+    }
+  ],
+  "scriptVersions": [
+    {
+      "id": "script_v1",
+      "projectId": "project_demo",
+      "version": 1,
+      "rawText": "《斗破苍穹》三年之约·赴约（助手重写练习版）\n\n场景：云岚宗，一处空地。\n萧炎与纳兰嫣然相对而立。\n萧炎：我来了。今天，把这桩旧事了结。\n纳兰嫣然：你想靠这一战，让我收回当年的决定？\n萧炎：我要的，是你正视站在这里的人。\n纳兰嫣然拔剑，萧炎握紧重尺。\n两人目光相对，谁也没有先动。\n",
+      "contentSha256": "4865307e9e17436b6b9432f2c61bfae0099a064d45f0a2bb7fb6f2ee438ab2a8",
+      "createdAt": "2026-09-15T00:00:00Z"
+    }
+  ],
+  "planRevisions": [
+    {
+      "id": "plan_v1",
+      "projectId": "project_demo",
+      "scriptVersionId": "script_v1",
+      "parentRevisionId": null,
+      "rebasedFromRevisionId": null,
+      "createdAt": "2026-09-15T00:00:00Z",
+      "createdBy": "agent",
+      "reason": "storyboard",
+      "scope": {
+        "kind": "project",
+        "targetId": null
+      },
+      "requirements": {
+        "language": "zh-CN",
+        "visualStyle": "真人拟真",
+        "aspectRatio": "9:16",
+        "targetDurationSeconds": {
+          "min": 60,
+          "max": 120
+        }
+      },
+      "synopsis": {
+        "value": "萧炎与纳兰嫣然在云岚宗空地对峙并交谈。纳兰嫣然拔剑，萧炎握紧重尺，两人对视，尚未出招。",
+        "origin": "source",
+        "sourceRefs": [
+          {
+            "scriptVersionId": "script_v1",
+            "start": 24,
+            "end": 36,
+            "quote": "场景：云岚宗，一处空地。"
+          },
+          {
+            "scriptVersionId": "script_v1",
+            "start": 37,
+            "end": 49,
+            "quote": "萧炎与纳兰嫣然相对而立。"
+          },
+          {
+            "scriptVersionId": "script_v1",
+            "start": 50,
+            "end": 68,
+            "quote": "萧炎：我来了。今天，把这桩旧事了结。"
+          },
+          {
+            "scriptVersionId": "script_v1",
+            "start": 69,
+            "end": 91,
+            "quote": "纳兰嫣然：你想靠这一战，让我收回当年的决定？"
+          },
+          {
+            "scriptVersionId": "script_v1",
+            "start": 92,
+            "end": 110,
+            "quote": "萧炎：我要的，是你正视站在这里的人。"
+          },
+          {
+            "scriptVersionId": "script_v1",
+            "start": 111,
+            "end": 125,
+            "quote": "纳兰嫣然拔剑，萧炎握紧重尺。"
+          },
+          {
+            "scriptVersionId": "script_v1",
+            "start": 126,
+            "end": 140,
+            "quote": "两人目光相对，谁也没有先动。"
+          }
+        ],
+        "answerIds": []
+      },
+      "characters": [
+        {
+          "id": "character_xiaoyan",
+          "name": {
+            "value": "萧炎",
+            "origin": "source",
+            "sourceRefs": [
+              {
+                "scriptVersionId": "script_v1",
+                "start": 37,
+                "end": 49,
+                "quote": "萧炎与纳兰嫣然相对而立。"
+              },
+              {
+                "scriptVersionId": "script_v1",
+                "start": 50,
+                "end": 68,
+                "quote": "萧炎：我来了。今天，把这桩旧事了结。"
+              },
+              {
+                "scriptVersionId": "script_v1",
+                "start": 92,
+                "end": 110,
+                "quote": "萧炎：我要的，是你正视站在这里的人。"
+              },
+              {
+                "scriptVersionId": "script_v1",
+                "start": 111,
+                "end": 125,
+                "quote": "纳兰嫣然拔剑，萧炎握紧重尺。"
+              }
+            ],
+            "answerIds": []
+          },
+          "aliases": [],
+          "description": null,
+          "sourceRefs": [
+            {
+              "scriptVersionId": "script_v1",
+              "start": 37,
+              "end": 49,
+              "quote": "萧炎与纳兰嫣然相对而立。"
+            },
+            {
+              "scriptVersionId": "script_v1",
+              "start": 50,
+              "end": 68,
+              "quote": "萧炎：我来了。今天，把这桩旧事了结。"
+            },
+            {
+              "scriptVersionId": "script_v1",
+              "start": 92,
+              "end": 110,
+              "quote": "萧炎：我要的，是你正视站在这里的人。"
+            },
+            {
+              "scriptVersionId": "script_v1",
+              "start": 111,
+              "end": 125,
+              "quote": "纳兰嫣然拔剑，萧炎握紧重尺。"
+            }
+          ]
+        },
+        {
+          "id": "character_nalan",
+          "name": {
+            "value": "纳兰嫣然",
+            "origin": "source",
+            "sourceRefs": [
+              {
+                "scriptVersionId": "script_v1",
+                "start": 37,
+                "end": 49,
+                "quote": "萧炎与纳兰嫣然相对而立。"
+              },
+              {
+                "scriptVersionId": "script_v1",
+                "start": 69,
+                "end": 91,
+                "quote": "纳兰嫣然：你想靠这一战，让我收回当年的决定？"
+              },
+              {
+                "scriptVersionId": "script_v1",
+                "start": 111,
+                "end": 125,
+                "quote": "纳兰嫣然拔剑，萧炎握紧重尺。"
+              }
+            ],
+            "answerIds": []
+          },
+          "aliases": [],
+          "description": null,
+          "sourceRefs": [
+            {
+              "scriptVersionId": "script_v1",
+              "start": 37,
+              "end": 49,
+              "quote": "萧炎与纳兰嫣然相对而立。"
+            },
+            {
+              "scriptVersionId": "script_v1",
+              "start": 69,
+              "end": 91,
+              "quote": "纳兰嫣然：你想靠这一战，让我收回当年的决定？"
+            },
+            {
+              "scriptVersionId": "script_v1",
+              "start": 111,
+              "end": 125,
+              "quote": "纳兰嫣然拔剑，萧炎握紧重尺。"
+            }
+          ]
+        }
+      ],
+      "locations": [
+        {
+          "id": "location_yunlan",
+          "name": {
+            "value": "云岚宗空地",
+            "origin": "source",
+            "sourceRefs": [
+              {
+                "scriptVersionId": "script_v1",
+                "start": 24,
+                "end": 36,
+                "quote": "场景：云岚宗，一处空地。"
+              }
+            ],
+            "answerIds": []
+          },
+          "aliases": [],
+          "description": null,
+          "sourceRefs": [
+            {
+              "scriptVersionId": "script_v1",
+              "start": 24,
+              "end": 36,
+              "quote": "场景：云岚宗，一处空地。"
+            }
+          ]
+        }
+      ],
+      "props": [
+        {
+          "id": "prop_sword",
+          "name": {
+            "value": "剑",
+            "origin": "source",
+            "sourceRefs": [
+              {
+                "scriptVersionId": "script_v1",
+                "start": 111,
+                "end": 125,
+                "quote": "纳兰嫣然拔剑，萧炎握紧重尺。"
+              }
+            ],
+            "answerIds": []
+          },
+          "aliases": [],
+          "description": null,
+          "sourceRefs": [
+            {
+              "scriptVersionId": "script_v1",
+              "start": 111,
+              "end": 125,
+              "quote": "纳兰嫣然拔剑，萧炎握紧重尺。"
+            }
+          ]
+        },
+        {
+          "id": "prop_ruler",
+          "name": {
+            "value": "重尺",
+            "origin": "source",
+            "sourceRefs": [
+              {
+                "scriptVersionId": "script_v1",
+                "start": 111,
+                "end": 125,
+                "quote": "纳兰嫣然拔剑，萧炎握紧重尺。"
+              }
+            ],
+            "answerIds": []
+          },
+          "aliases": [],
+          "description": null,
+          "sourceRefs": [
+            {
+              "scriptVersionId": "script_v1",
+              "start": 111,
+              "end": 125,
+              "quote": "纳兰嫣然拔剑，萧炎握紧重尺。"
+            }
+          ]
+        }
+      ],
+      "dialogues": [
+        {
+          "id": "dialogue_01",
+          "sceneId": "scene_01",
+          "speakerId": "character_xiaoyan",
+          "speakerSourceRefs": [
+            {
+              "scriptVersionId": "script_v1",
+              "start": 50,
+              "end": 68,
+              "quote": "萧炎：我来了。今天，把这桩旧事了结。"
+            }
+          ],
+          "speakerAnswerIds": [],
+          "sourceRef": {
+            "scriptVersionId": "script_v1",
+            "start": 53,
+            "end": 68,
+            "quote": "我来了。今天，把这桩旧事了结。"
+          }
+        },
+        {
+          "id": "dialogue_02",
+          "sceneId": "scene_01",
+          "speakerId": "character_nalan",
+          "speakerSourceRefs": [
+            {
+              "scriptVersionId": "script_v1",
+              "start": 69,
+              "end": 91,
+              "quote": "纳兰嫣然：你想靠这一战，让我收回当年的决定？"
+            }
+          ],
+          "speakerAnswerIds": [],
+          "sourceRef": {
+            "scriptVersionId": "script_v1",
+            "start": 74,
+            "end": 91,
+            "quote": "你想靠这一战，让我收回当年的决定？"
+          }
+        },
+        {
+          "id": "dialogue_03",
+          "sceneId": "scene_01",
+          "speakerId": "character_xiaoyan",
+          "speakerSourceRefs": [
+            {
+              "scriptVersionId": "script_v1",
+              "start": 92,
+              "end": 110,
+              "quote": "萧炎：我要的，是你正视站在这里的人。"
+            }
+          ],
+          "speakerAnswerIds": [],
+          "sourceRef": {
+            "scriptVersionId": "script_v1",
+            "start": 95,
+            "end": 110,
+            "quote": "我要的，是你正视站在这里的人。"
+          }
+        }
+      ],
+      "scenes": [
+        {
+          "id": "scene_01",
+          "order": 1,
+          "title": {
+            "value": "云岚宗空地的对峙",
+            "origin": "source",
+            "sourceRefs": [
+              {
+                "scriptVersionId": "script_v1",
+                "start": 24,
+                "end": 36,
+                "quote": "场景：云岚宗，一处空地。"
+              },
+              {
+                "scriptVersionId": "script_v1",
+                "start": 37,
+                "end": 49,
+                "quote": "萧炎与纳兰嫣然相对而立。"
+              },
+              {
+                "scriptVersionId": "script_v1",
+                "start": 50,
+                "end": 68,
+                "quote": "萧炎：我来了。今天，把这桩旧事了结。"
+              },
+              {
+                "scriptVersionId": "script_v1",
+                "start": 69,
+                "end": 91,
+                "quote": "纳兰嫣然：你想靠这一战，让我收回当年的决定？"
+              },
+              {
+                "scriptVersionId": "script_v1",
+                "start": 92,
+                "end": 110,
+                "quote": "萧炎：我要的，是你正视站在这里的人。"
+              },
+              {
+                "scriptVersionId": "script_v1",
+                "start": 111,
+                "end": 125,
+                "quote": "纳兰嫣然拔剑，萧炎握紧重尺。"
+              },
+              {
+                "scriptVersionId": "script_v1",
+                "start": 126,
+                "end": 140,
+                "quote": "两人目光相对，谁也没有先动。"
+              }
+            ],
+            "answerIds": []
+          },
+          "locationId": "location_yunlan",
+          "characterIds": [
+            "character_xiaoyan",
+            "character_nalan"
+          ],
+          "sourceRefs": [
+            {
+              "scriptVersionId": "script_v1",
+              "start": 24,
+              "end": 36,
+              "quote": "场景：云岚宗，一处空地。"
+            },
+            {
+              "scriptVersionId": "script_v1",
+              "start": 37,
+              "end": 49,
+              "quote": "萧炎与纳兰嫣然相对而立。"
+            },
+            {
+              "scriptVersionId": "script_v1",
+              "start": 50,
+              "end": 68,
+              "quote": "萧炎：我来了。今天，把这桩旧事了结。"
+            },
+            {
+              "scriptVersionId": "script_v1",
+              "start": 69,
+              "end": 91,
+              "quote": "纳兰嫣然：你想靠这一战，让我收回当年的决定？"
+            },
+            {
+              "scriptVersionId": "script_v1",
+              "start": 92,
+              "end": 110,
+              "quote": "萧炎：我要的，是你正视站在这里的人。"
+            },
+            {
+              "scriptVersionId": "script_v1",
+              "start": 111,
+              "end": 125,
+              "quote": "纳兰嫣然拔剑，萧炎握紧重尺。"
+            },
+            {
+              "scriptVersionId": "script_v1",
+              "start": 126,
+              "end": 140,
+              "quote": "两人目光相对，谁也没有先动。"
+            }
+          ],
+          "timeOfDay": null,
+          "shots": [
+            {
+              "id": "shot_01",
+              "sceneId": "scene_01",
+              "order": 1,
+              "sourceRefs": [
+                {
+                  "scriptVersionId": "script_v1",
+                  "start": 37,
+                  "end": 49,
+                  "quote": "萧炎与纳兰嫣然相对而立。"
+                },
+                {
+                  "scriptVersionId": "script_v1",
+                  "start": 50,
+                  "end": 68,
+                  "quote": "萧炎：我来了。今天，把这桩旧事了结。"
+                }
+              ],
+              "actionRefs": [
+                {
+                  "scriptVersionId": "script_v1",
+                  "start": 37,
+                  "end": 49,
+                  "quote": "萧炎与纳兰嫣然相对而立。"
+                }
+              ],
+              "visibleCharacterIds": [
+                "character_xiaoyan",
+                "character_nalan"
+              ],
+              "propIds": [],
+              "dialogueBindings": [
+                {
+                  "dialogueId": "dialogue_01",
+                  "start": 0,
+                  "end": 15
+                }
+              ],
+              "design": {
+                "visualDescription": {
+                  "value": "两人相对而立，萧炎开口；同框连续拍完这一句。",
+                  "origin": "design",
+                  "sourceRefs": [
+                    {
+                      "scriptVersionId": "script_v1",
+                      "start": 37,
+                      "end": 49,
+                      "quote": "萧炎与纳兰嫣然相对而立。"
+                    },
+                    {
+                      "scriptVersionId": "script_v1",
+                      "start": 50,
+                      "end": 68,
+                      "quote": "萧炎：我来了。今天，把这桩旧事了结。"
+                    }
+                  ],
+                  "answerIds": []
+                },
+                "shotSize": {
+                  "value": "双人中景",
+                  "origin": "design",
+                  "sourceRefs": [],
+                  "answerIds": []
+                },
+                "cameraPosition": {
+                  "value": "两人侧前方，保持同框",
+                  "origin": "design",
+                  "sourceRefs": [],
+                  "answerIds": []
+                },
+                "cameraMovement": {
+                  "value": "固定机位",
+                  "origin": "design",
+                  "sourceRefs": [],
+                  "answerIds": []
+                },
+                "performance": null,
+                "durationMs": {
+                  "value": 5000,
+                  "origin": "design",
+                  "sourceRefs": [],
+                  "answerIds": []
+                }
+              }
+            },
+            {
+              "id": "shot_02",
+              "sceneId": "scene_01",
+              "order": 2,
+              "sourceRefs": [
+                {
+                  "scriptVersionId": "script_v1",
+                  "start": 69,
+                  "end": 91,
+                  "quote": "纳兰嫣然：你想靠这一战，让我收回当年的决定？"
+                }
+              ],
+              "actionRefs": [],
+              "visibleCharacterIds": [
+                "character_nalan"
+              ],
+              "propIds": [],
+              "dialogueBindings": [
+                {
+                  "dialogueId": "dialogue_02",
+                  "start": 0,
+                  "end": 17
+                }
+              ],
+              "design": {
+                "visualDescription": {
+                  "value": "纳兰嫣然注视对方，说出原文中的质问。",
+                  "origin": "design",
+                  "sourceRefs": [
+                    {
+                      "scriptVersionId": "script_v1",
+                      "start": 69,
+                      "end": 91,
+                      "quote": "纳兰嫣然：你想靠这一战，让我收回当年的决定？"
+                    }
+                  ],
+                  "answerIds": []
+                },
+                "shotSize": {
+                  "value": "近景",
+                  "origin": "design",
+                  "sourceRefs": [],
+                  "answerIds": []
+                },
+                "cameraPosition": {
+                  "value": "纳兰嫣然正面偏侧",
+                  "origin": "design",
+                  "sourceRefs": [],
+                  "answerIds": []
+                },
+                "cameraMovement": {
+                  "value": "固定机位",
+                  "origin": "design",
+                  "sourceRefs": [],
+                  "answerIds": []
+                },
+                "performance": {
+                  "value": "语气带有质问",
+                  "origin": "design",
+                  "sourceRefs": [],
+                  "answerIds": []
+                },
+                "durationMs": {
+                  "value": 5000,
+                  "origin": "design",
+                  "sourceRefs": [],
+                  "answerIds": []
+                }
+              }
+            },
+            {
+              "id": "shot_03",
+              "sceneId": "scene_01",
+              "order": 3,
+              "sourceRefs": [
+                {
+                  "scriptVersionId": "script_v1",
+                  "start": 92,
+                  "end": 110,
+                  "quote": "萧炎：我要的，是你正视站在这里的人。"
+                }
+              ],
+              "actionRefs": [],
+              "visibleCharacterIds": [
+                "character_xiaoyan"
+              ],
+              "propIds": [],
+              "dialogueBindings": [
+                {
+                  "dialogueId": "dialogue_03",
+                  "start": 0,
+                  "end": 15
+                }
+              ],
+              "design": {
+                "visualDescription": {
+                  "value": "萧炎直视对方，说出原文中的回应。",
+                  "origin": "design",
+                  "sourceRefs": [
+                    {
+                      "scriptVersionId": "script_v1",
+                      "start": 92,
+                      "end": 110,
+                      "quote": "萧炎：我要的，是你正视站在这里的人。"
+                    }
+                  ],
+                  "answerIds": []
+                },
+                "shotSize": {
+                  "value": "近景",
+                  "origin": "design",
+                  "sourceRefs": [],
+                  "answerIds": []
+                },
+                "cameraPosition": {
+                  "value": "萧炎正面偏侧",
+                  "origin": "design",
+                  "sourceRefs": [],
+                  "answerIds": []
+                },
+                "cameraMovement": {
+                  "value": "固定机位",
+                  "origin": "design",
+                  "sourceRefs": [],
+                  "answerIds": []
+                },
+                "performance": {
+                  "value": "平静但坚定",
+                  "origin": "design",
+                  "sourceRefs": [],
+                  "answerIds": []
+                },
+                "durationMs": {
+                  "value": 5000,
+                  "origin": "design",
+                  "sourceRefs": [],
+                  "answerIds": []
+                }
+              }
+            },
+            {
+              "id": "shot_04",
+              "sceneId": "scene_01",
+              "order": 4,
+              "sourceRefs": [
+                {
+                  "scriptVersionId": "script_v1",
+                  "start": 111,
+                  "end": 125,
+                  "quote": "纳兰嫣然拔剑，萧炎握紧重尺。"
+                },
+                {
+                  "scriptVersionId": "script_v1",
+                  "start": 126,
+                  "end": 140,
+                  "quote": "两人目光相对，谁也没有先动。"
+                }
+              ],
+              "actionRefs": [
+                {
+                  "scriptVersionId": "script_v1",
+                  "start": 111,
+                  "end": 125,
+                  "quote": "纳兰嫣然拔剑，萧炎握紧重尺。"
+                },
+                {
+                  "scriptVersionId": "script_v1",
+                  "start": 126,
+                  "end": 140,
+                  "quote": "两人目光相对，谁也没有先动。"
+                }
+              ],
+              "visibleCharacterIds": [
+                "character_xiaoyan",
+                "character_nalan"
+              ],
+              "propIds": [
+                "prop_sword",
+                "prop_ruler"
+              ],
+              "dialogueBindings": [],
+              "design": {
+                "visualDescription": {
+                  "value": "纳兰嫣然拔剑，萧炎握紧重尺；两人目光相对，没有先出招。始终同框连续拍摄。",
+                  "origin": "design",
+                  "sourceRefs": [
+                    {
+                      "scriptVersionId": "script_v1",
+                      "start": 111,
+                      "end": 125,
+                      "quote": "纳兰嫣然拔剑，萧炎握紧重尺。"
+                    },
+                    {
+                      "scriptVersionId": "script_v1",
+                      "start": 126,
+                      "end": 140,
+                      "quote": "两人目光相对，谁也没有先动。"
+                    }
+                  ],
+                  "answerIds": []
+                },
+                "shotSize": {
+                  "value": "双人中景",
+                  "origin": "design",
+                  "sourceRefs": [],
+                  "answerIds": []
+                },
+                "cameraPosition": {
+                  "value": "两人侧前方，保持同框",
+                  "origin": "design",
+                  "sourceRefs": [],
+                  "answerIds": []
+                },
+                "cameraMovement": {
+                  "value": "固定机位",
+                  "origin": "design",
+                  "sourceRefs": [],
+                  "answerIds": []
+                },
+                "performance": null,
+                "durationMs": {
+                  "value": 4000,
+                  "origin": "design",
+                  "sourceRefs": [],
+                  "answerIds": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "assetRequirements": [
+        {
+          "id": "asset_requirement_01",
+          "kind": "character",
+          "entityId": "character_xiaoyan",
+          "shotIds": [
+            "shot_01",
+            "shot_03",
+            "shot_04"
+          ],
+          "description": {
+            "value": "萧炎的人物素材；具体外貌、服装留待制作设定阶段设计。",
+            "origin": "design",
+            "sourceRefs": [
+              {
+                "scriptVersionId": "script_v1",
+                "start": 37,
+                "end": 49,
+                "quote": "萧炎与纳兰嫣然相对而立。"
+              }
+            ],
+            "answerIds": []
+          }
+        },
+        {
+          "id": "asset_requirement_02",
+          "kind": "character",
+          "entityId": "character_nalan",
+          "shotIds": [
+            "shot_01",
+            "shot_02",
+            "shot_04"
+          ],
+          "description": {
+            "value": "纳兰嫣然的人物素材；具体外貌、服装留待制作设定阶段设计。",
+            "origin": "design",
+            "sourceRefs": [
+              {
+                "scriptVersionId": "script_v1",
+                "start": 37,
+                "end": 49,
+                "quote": "萧炎与纳兰嫣然相对而立。"
+              }
+            ],
+            "answerIds": []
+          }
+        },
+        {
+          "id": "asset_requirement_03",
+          "kind": "location",
+          "entityId": "location_yunlan",
+          "shotIds": [
+            "shot_01",
+            "shot_02",
+            "shot_03",
+            "shot_04"
+          ],
+          "description": {
+            "value": "云岚宗空地的场景素材。",
+            "origin": "design",
+            "sourceRefs": [
+              {
+                "scriptVersionId": "script_v1",
+                "start": 24,
+                "end": 36,
+                "quote": "场景：云岚宗，一处空地。"
+              }
+            ],
+            "answerIds": []
+          }
+        },
+        {
+          "id": "asset_requirement_04",
+          "kind": "prop",
+          "entityId": "prop_sword",
+          "shotIds": [
+            "shot_04"
+          ],
+          "description": {
+            "value": "供纳兰嫣然拔出的剑。",
+            "origin": "design",
+            "sourceRefs": [
+              {
+                "scriptVersionId": "script_v1",
+                "start": 111,
+                "end": 125,
+                "quote": "纳兰嫣然拔剑，萧炎握紧重尺。"
+              }
+            ],
+            "answerIds": []
+          }
+        },
+        {
+          "id": "asset_requirement_05",
+          "kind": "prop",
+          "entityId": "prop_ruler",
+          "shotIds": [
+            "shot_04"
+          ],
+          "description": {
+            "value": "供萧炎握紧的重尺。",
+            "origin": "design",
+            "sourceRefs": [
+              {
+                "scriptVersionId": "script_v1",
+                "start": 111,
+                "end": 125,
+                "quote": "纳兰嫣然拔剑，萧炎握紧重尺。"
+              }
+            ],
+            "answerIds": []
+          }
+        }
+      ],
+      "manualLocks": []
+    }
+  ],
+  "runs": [
+    {
+      "id": "run_draft",
+      "projectId": "project_demo",
+      "target": "breakdown",
+      "scriptVersionId": "script_v1",
+      "basePlanRevisionId": null,
+      "requirements": {
+        "language": "zh-CN",
+        "visualStyle": "真人拟真",
+        "aspectRatio": "9:16",
+        "targetDurationSeconds": {
+          "min": 60,
+          "max": 120
+        }
+      },
+      "modelConfig": null,
+      "scope": {
+        "kind": "project",
+        "targetId": null
+      },
+      "mode": "auto",
+      "humanCheckpoints": [],
+      "status": "draft",
+      "globalPauseReason": null,
+      "budget": {
+        "currency": "CNY",
+        "limitMicros": null
+      },
+      "sealedAt": null,
+      "createdAt": "2026-09-15T00:00:00Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task_extract",
+      "runId": "run_draft",
+      "type": "extractFacts",
+      "scope": {
+        "kind": "project",
+        "targetId": null
+      },
+      "basePlanRevisionId": null,
+      "dependsOnTaskIds": [],
+      "inputManifest": [
+        {
+          "kind": "script",
+          "id": "script_v1",
+          "revisionId": "script_v1",
+          "fields": [
+            "rawText"
+          ],
+          "digest": "4865307e9e17436b6b9432f2c61bfae0099a064d45f0a2bb7fb6f2ee438ab2a8"
+        },
+        {
+          "kind": "requirements",
+          "id": "run_draft",
+          "revisionId": "run_draft",
+          "fields": [
+            "*"
+          ],
+          "digest": "17746edaa567efdcb99d43215537d3bf0825ee02194564632cb459a04f662829"
+        }
+      ],
+      "state": "pending",
+      "blockedByIssueIds": [],
+      "limits": null,
+      "activeAttemptId": null,
+      "lease": null,
+      "createdAt": "2026-09-15T00:00:00Z"
+    }
+  ],
+  "attempts": [],
+  "modelCalls": [],
+  "costEntries": [],
+  "issues": [],
+  "answers": [],
+  "checks": [],
+  "adoptions": []
+}
