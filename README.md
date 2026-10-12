@@ -71,7 +71,7 @@
 准备 **Node.js ≥ 22.19** 和 npm，即可先体验前端；无需数据库或模型账号。
 
 ```sh
-git clone https://github.com/K80Tom/-.git frame
+git clone https://github.com/K80Tom/frame-shortdrama-agent.git frame
 cd frame/shortdrama-agent-lab
 npm --prefix web ci
 npm --prefix web run dev
@@ -107,7 +107,7 @@ FRAME 处于 **Early Preview**。下面区分了已经落地的能力与后续�
 | 配置后端、数据库与迁移 | [本地开发](shortdrama-agent-lab/docs/本地开发.md) |
 | 配置模型代理与调用限制 | [模型接入](shortdrama-agent-lab/docs/模型接入.md) |
 | 看设计、架构与数据约定 | [总体设计](shortdrama-agent-lab/docs/总体设计.md) · [技术架构](shortdrama-agent-lab/docs/技术架构.md) · [数据结构](shortdrama-agent-lab/docs/数据结构-v0.1.md) |
-| 反馈问题或提出想法 | [GitHub Issues](https://github.com/K80Tom/-/issues) |
+| 反馈问题或提出想法 | [GitHub Issues](https://github.com/K80Tom/frame-shortdrama-agent/issues) |
 
 ## 仓库导航：产品与历史参考
 

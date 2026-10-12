@@ -1,6 +1,6 @@
 # 界面参考与第三方代码
 
-更新：2026-09-27。
+更新：2026-10-12（同步仓库改名，保留原始来源记录）。
 
 ## 实际复用的代码
 
@@ -15,7 +15,7 @@
 
 ### 用户指定仓库的 3D 导演台
 
-- 仓库：https://github.com/K80Tom/- ，本地来源提交 `e1f879204be39518f01e663f8025963112c87336`。
+- 仓库：[K80Tom/frame-shortdrama-agent](https://github.com/K80Tom/frame-shortdrama-agent)（原仓库名 `-`），本地来源提交 `e1f879204be39518f01e663f8025963112c87336`。
 - 用户链接指向 `shortdrama-agent`，实际前端实现位于同仓的 `短剧Main/frontend/shortdrama-rag-demo/src/components/director/`。
 - 按用户明确要求直接复制到 `src/director/`：人物骨架、体型与姿势、场景对象、相机、光照、坐标变换、属性面板、状态和快照、PNG/宫格/深度图/运镜录制逻辑。
 - 本项目新增或修改：独立页面壳与路由、暖色与移动布局、手工练习场景、IndexedDB 保存、JSON 导入导出、内嵌本地上传媒体、导出预览；删除旧账号、HTTP API、远端模板清单与云素材库入口。未改动旧仓源码。

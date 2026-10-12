@@ -78,7 +78,7 @@ FRAME 把剧本、分镜和 3D 机位预演放进同一个深色电影工作台�
 准备 **Node.js ≥ 22.19** 和 npm。前端体验无需数据库或模型账号。
 
 ```sh
-git clone https://github.com/K80Tom/-.git frame
+git clone https://github.com/K80Tom/frame-shortdrama-agent.git frame
 cd frame/shortdrama-agent-lab
 npm --prefix web ci
 npm --prefix web run dev
@@ -233,5 +233,5 @@ npm run test:db
 
 <div align="center">
   <p><strong>让创作从可看见的镜头开始。</strong></p>
-  <p><a href="#快速开始">本地体验 FRAME</a> · <a href="https://github.com/K80Tom/-/issues">反馈问题与想法</a></p>
+  <p><a href="#快速开始">本地体验 FRAME</a> · <a href="https://github.com/K80Tom/frame-shortdrama-agent/issues">反馈问题与想法</a></p>
 </div>
