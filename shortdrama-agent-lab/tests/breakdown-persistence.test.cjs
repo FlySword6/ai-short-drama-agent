@@ -79,7 +79,7 @@ test('P0.2 persists a lossless source index and creates only a draft extractFact
   assert.equal(run.status, 'draft');
   assert.equal(run.sealedAt, null);
   assert.deepEqual(run.modelConfig, {
-    provider: 'local-proxy', model: 'gpt-5.6-terra', reasoningEffort: 'medium',
+    provider: 'maas', model: 'deepseek-v4.1-flash-1017', reasoningEffort: 'model-default',
   });
   assert.deepEqual(run.humanCheckpoints, ['candidatePlanReview']);
   assert.equal(run.task.type, 'extractFacts');
@@ -156,7 +156,7 @@ test('P0.2 local HTTP routes create drafts without calling a model and reject ma
       payload: {
         scriptVersionId: script.id,
         requirements: { language: '中文', targetDurationSeconds: { min: 60, max: 120 } },
-        modelConfig: { model: 'gpt-5.6-terra', reasoningEffort: 'low' },
+        modelConfig: { model: 'deepseek-v4.1-flash-1017', reasoningEffort: 'model-default' },
         maxModelCalls: 1,
         maxOutputTokens: 4096,
       },
@@ -165,7 +165,7 @@ test('P0.2 local HTTP routes create drafts without calling a model and reject ma
     const run = runResponse.json();
     assert.equal(run.status, 'draft');
     assert.equal(run.task.type, 'extractFacts');
-    assert.equal(run.modelConfig.reasoningEffort, 'low');
+    assert.equal(run.modelConfig.reasoningEffort, 'model-default');
 
     const fetched = await server.inject({ method: 'GET', url: `/api/breakdown-runs/${run.id}`, headers });
     assert.equal(fetched.statusCode, 200);

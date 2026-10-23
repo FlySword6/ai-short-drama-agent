@@ -41,16 +41,10 @@ const CreateScriptVersionSchema = Type.Object({
 }, { additionalProperties: false });
 export type CreateScriptVersionRequest = Static<typeof CreateScriptVersionSchema>;
 
-const ReasoningEffortSchema = Type.Union([
-  Type.Literal("low"),
-  Type.Literal("medium"),
-  Type.Literal("high"),
-  Type.Literal("xhigh"),
-  Type.Literal("max"),
-]);
+const ReasoningEffortSchema = Type.Literal("model-default");
 
 const ModelConfigOverrideSchema = Type.Object({
-  model: Type.Optional(Type.String({ minLength: 1, maxLength: 100, pattern: "^[A-Za-z0-9_.()/-]+$" })),
+  model: Type.Optional(Type.String({ minLength: 1, maxLength: 100, pattern: "^[A-Za-z0-9_.:() /-]+$" })),
   reasoningEffort: Type.Optional(ReasoningEffortSchema),
 }, { additionalProperties: false });
 export type ModelConfigOverride = Static<typeof ModelConfigOverrideSchema>;

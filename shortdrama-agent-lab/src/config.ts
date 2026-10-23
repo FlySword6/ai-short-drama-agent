@@ -1,13 +1,22 @@
 import { findModel } from './models/registry';
+import type { ModelConnections } from './models/connections';
 
 export interface AppConfig {
   port: number;
+  provider: 'maas' | 'openai-compatible';
   baseUrl: string;
+  apiKey: string;
   defaultModel: string;
   reasoningEffort: string;
   maxOutputTokens: number;
   timeoutMs: number;
   maxConcurrentCalls: number;
+  authType?: 'api-key' | 'bearer';
+  endpointUrl?: string;
+  connectionRevision?: string;
+  /** Runtime-only service. Never serialize AppConfig or return it to the browser. */
+  modelConnections?: ModelConnections;
+  callBudget?: { active: number };
 }
 
 export function readConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
@@ -16,25 +25,29 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     if (!Number.isInteger(value) || value < min || value > max) throw new Error(`Invalid ${name}`);
     return value;
   };
-  let url: URL;
-  try { url = new URL(env.LLM_BASE_URL ?? 'http://127.0.0.1:8787/v1'); }
-  catch { throw new Error('Invalid LLM_BASE_URL'); }
-  if (url.protocol !== 'http:' || url.hostname !== '127.0.0.1' || url.username || url.password ||
-      url.search || url.hash || !['/v1', '/v1/'].includes(url.pathname)) {
-    throw new Error('LLM_BASE_URL must be http://127.0.0.1:<port>/v1; remote deployment is not configured');
+  // Local project editing remains available before a new model account is configured.
+  // Never fall back to the removed company proxy when settings are absent.
+  let baseUrl = '';
+  if (env.LLM_BASE_URL?.trim()) {
+    let url: URL;
+    try { url = new URL(env.LLM_BASE_URL.trim()); }
+    catch { throw new Error('Invalid LLM_BASE_URL'); }
+    if (url.protocol !== 'https:' || url.username || url.password || /[?#]/.test(env.LLM_BASE_URL.trim())) {
+      throw new Error('LLM_BASE_URL must use HTTPS without credentials, query or fragment');
+    }
+    baseUrl = url.href.replace(/\/$/, '');
   }
-  const defaultModel = env.LLM_DEFAULT_MODEL ?? 'gpt-5.6-terra';
+  const apiKey = env.LLM_API_KEY?.trim() ?? '';
+  if (/[\r\n]/.test(apiKey)) throw new Error('Invalid LLM_API_KEY');
+  const defaultModel = env.LLM_DEFAULT_MODEL ?? 'deepseek-v4.1-flash-1017';
   const model = findModel(defaultModel);
   if (!model) throw new Error('Invalid LLM_DEFAULT_MODEL');
-  // Keep the default model within a practical first-pass budget.  Other
-  // explicitly selected models still retain their own registry defaults.
-  const reasoningEffort = env.LLM_REASONING_EFFORT ?? 'medium';
-  if (reasoningEffort !== 'model-default' && !model.reasoningEfforts.includes(reasoningEffort)) {
+  const reasoningEffort = env.LLM_REASONING_EFFORT ?? 'model-default';
+  if (!model.reasoningEfforts.includes(reasoningEffort)) {
     throw new Error('LLM_REASONING_EFFORT is unsupported for LLM_DEFAULT_MODEL');
   }
   const port = integer('PORT', 8788, 1024, 65535);
-  if (port === Number(url.port || 80)) throw new Error('PORT must differ from the proxy port');
-  return Object.freeze({ port, baseUrl: url.href.replace(/\/$/, ''), defaultModel, reasoningEffort,
+  return Object.freeze({ port, provider: 'maas', baseUrl, apiKey, defaultModel, reasoningEffort,
     maxOutputTokens: integer('LLM_MAX_OUTPUT_TOKENS', 8192, 256, 32768),
     timeoutMs: integer('LLM_TIMEOUT_MS', 180000, 1000, 600000),
     maxConcurrentCalls: integer('LLM_MAX_CONCURRENT_CALLS', 2, 1, 8) });

@@ -519,8 +519,8 @@ function classifySource(content: string, firstNonblank: boolean): Pick<SourceSpa
   if (looksLikeHeading(trimmed)) {
     return { kind: "headingCandidate", confidence: "explicit", speakerCandidate: null };
   }
-  const dialogue = detectDialogue(trimmed);
-  if (dialogue) return { kind: "dialogueTurnCandidate", confidence: "heuristic", speakerCandidate: dialogue };
+  const dialogue = parseDialogueLine(trimmed);
+  if (dialogue) return { kind: "dialogueTurnCandidate", confidence: "heuristic", speakerCandidate: dialogue.speaker };
   return { kind: "actionBlockCandidate", confidence: "unknown", speakerCandidate: null };
 }
 
@@ -532,11 +532,11 @@ function looksLikeHeading(value: string): boolean {
     || /^【[^】]{1,160}】$/u.test(value);
 }
 
-function detectDialogue(value: string): string | null {
+function parseDialogueLine(value: string): { speaker: string; body: string } | null {
   const match = /^([^：:\n]{1,48}?)(?:[（(][^）)\n]{0,80}[）)])?\s*[：:]\s*(\S[\s\S]*)$/u.exec(value);
   if (match) {
     const speaker = match[1]?.trim() ?? "";
-    return isSpeakerLabel(speaker) ? speaker : null;
+    return isSpeakerLabel(speaker) ? { speaker, body: match[2]! } : null;
   }
 
   // Many Chinese stage plays use a fixed-width name column rather than a colon:
@@ -545,7 +545,23 @@ function detectDialogue(value: string): string | null {
   const column = /^([^\s　（(：:]{1,48})(?:[\t 　]{2,})(\S[\s\S]*)$/u.exec(value);
   if (!column) return null;
   const speaker = column[1]?.trim() ?? "";
-  return isSpeakerLabel(speaker) ? speaker : null;
+  return isSpeakerLabel(speaker) ? { speaker, body: column[2]! } : null;
+}
+
+/** Only a plain, single-line spoken body has an unambiguous range here.
+ * Parenthetical text inside the body may be stage direction or spoken content;
+ * leave it for explicit review instead of guessing or silently dropping words.
+ * This derives ranges from the existing index without changing its stored schema.
+ */
+export function dialogueBodyRange(span: SourceSpan): { start: number; end: number } | null {
+  if (span.kind !== "dialogueTurnCandidate") return null;
+  const trimmed = span.quote.trim();
+  const parsed = parseDialogueLine(trimmed);
+  if (!parsed || /[（）()]/u.test(parsed.body)) return null;
+  const leadingWhitespace = Array.from(span.quote).length - Array.from(span.quote.trimStart()).length;
+  const prefixLength = Array.from(trimmed).length - Array.from(parsed.body).length;
+  const start = span.start + leadingWhitespace + prefixLength;
+  return { start, end: start + Array.from(parsed.body).length };
 }
 
 function isSpeakerLabel(value: string): boolean {

@@ -1,36 +1,13 @@
 import { useRef, useState, type Dispatch, type SetStateAction } from 'react';
-import { ArrowDown, ArrowDownToLine, ArrowRight, ArrowUpRight, AudioLines, Box, Camera, Check, CheckCheck, ChevronLeft, ChevronRight, Clapperboard, Clock3, FileText, Film, FolderOpen, Image, Info, Layers3, LockKeyhole, Play, Plus, Save, ScanLine, Settings2, Sparkles, Upload, Users, WandSparkles } from 'lucide-react';
+import { ArrowDown, ArrowDownToLine, ArrowRight, ArrowUpRight, AudioLines, Box, Camera, Check, CheckCheck, ChevronLeft, ChevronRight, Clapperboard, Clock3, FileText, Film, FolderOpen, Image, Info, Layers3, LockKeyhole, Plus, Save, ScanLine, Settings2, Sparkles, Upload, Users, WandSparkles } from 'lucide-react';
 import { ArrowButton, Card, Modal, Notice, PageHeading, Tag, WhitePreview } from './components';
 import { exportDraft, initialShots, originalScript, plan, sampleImage, type Draft, type Page, type ShotDraft } from './model';
 import { stages } from './stages';
+import { ModelConnectionSummary } from './ModelConnections';
 
 type Common = { go: (page: Page, step?: number) => void; notify: (text: string) => void };
 type Editing = Common & { draft: Draft; setDraft: Dispatch<SetStateAction<Draft>>; save: (next?: Draft) => void };
 const stageIcons = [FileText, ScanLine, Clapperboard, Users, Box, Image, Film, AudioLines, CheckCheck];
-
-export function Studio({ go, draft, onNew }: Common & { draft: Draft; onNew: () => void }) {
-  return <>
-    <div className="welcome-line"><span><span className="tiny-light" /> YOUR PERSONAL FILM STUDIO</span><span>好故事，值得被看见。</span></div>
-    <section className="hero">
-      <div className="hero-image" style={{ backgroundImage: `url(${sampleImage})` }} />
-      <div className="hero-shade" /><div className="hero-light" aria-hidden="true" />
-      <div className="hero-content"><p className="eyebrow"><span className="line" /> FRAME / CREATIVE STUDIO</p><h1>让故事，<br />成为<span>镜头。</span></h1><p>从一页剧本出发，<br />把脑海中的画面，一幕幕呈现。</p><div className="hero-actions"><ArrowButton onClick={onNew}>开始一个故事</ArrowButton><button className="text-button" onClick={() => go('flow', 1)}><span className="play-circle"><Play size={12} fill="currentColor" /></span>了解短剧流程</button></div></div>
-      <div className="hero-frame top-left" /><div className="hero-frame bottom-right" />
-      <div className="hero-caption"><span className="hero-dot" /> VISUAL STUDY · 001 <span className="caption-divider" /> 赴约，交手之前<small>AI 造型示意</small></div>
-      <div className="hero-spec"><span>16:9 / 示意画面</span><span>中文 · 真人拟真</span></div>
-    </section>
-    <section className="quick-actions" aria-label="创作入口">
-      {[{ n: '01', icon: FileText, title: '读懂你的故事', detail: '原文、人物与场次，一目了然', page: 'script' as Page }, { n: '02', icon: Clapperboard, title: '把想法变成分镜', detail: '逐镜头设计，对照原文编辑', page: 'storyboard' as Page }, { n: '03', icon: Box, title: '先试一个好机位', detail: '用白模看清站位、空间与构图', page: 'director' as Page }].map(item => <Card key={item.n} className="quick-card"><button onClick={() => go(item.page, item.page === 'flow' ? 5 : undefined)}><span className="quick-icon"><item.icon size={20} strokeWidth={1.6} /></span><div><h3>{item.title}</h3><p>{item.detail}</p></div><span className="quick-number">{item.n}</span><ArrowUpRight className="quick-arrow" size={18} /></button></Card>)}
-    </section>
-    <div className="home-bottom">
-      <section><div className="section-heading"><h2>继续创作 <span className="count">01</span></h2><button className="text-button muted" onClick={() => go('script')}>打开工作区 <ArrowUpRight size={15} /></button></div>
-        <Card className="project-card"><button className="project-cover" onClick={() => go('storyboard')} aria-label="打开赴约分镜"><img src={sampleImage} alt="练习示意画面：两位角色在庭院相对而立" /><span className="cover-number">01 / 练习项目</span><span className="cover-arrow"><ArrowUpRight size={20} /></span></button><div className="project-info"><div className="row-between"><Tag tone="orange">文字分镜</Tag><span className="project-format">9:16</span></div><h3>赴约，交手之前</h3><p>一句对话，一次直视。<br />故事停在出招之前。</p><div className="project-meta"><span><Users size={13} />2 位人物</span><span><Clapperboard size={13} />4 个镜头</span></div><div className="project-footer"><span><span className="tiny-light muted-dot" />{draft.savedAt ? `本地草稿 · V${draft.revision}` : '手写参考 · 等待你的创作'}</span><button onClick={() => go('storyboard')} className="icon-button" aria-label="继续编辑分镜"><ArrowRight size={18} /></button></div></div></Card>
-      </section>
-      <section className="journey"><div className="section-heading"><h2>从故事到银幕</h2><span className="mini-label">THE PROCESS</span></div><Card className="journey-card"><div className="journey-list">{[{ name: '故事与分镜', desc: '让文字有画面', icon: FileText }, { name: '资产与画面', desc: '让每一幕保持一致', icon: Image }, { name: '声音与成片', desc: '让故事完整发生', icon: Film }].map((item, i) => <button key={item.name} onClick={() => go('flow', [2, 4, 8][i])}><span className={`journey-node ${i === 0 ? 'current' : ''}`}><item.icon size={16} /></span><div><h3>{item.name}</h3><p>{item.desc}</p></div><ChevronRight size={15} /></button>)}</div><button className="journey-link" onClick={() => go('flow', 1)}>探索完整的 9 步流程 <ArrowUpRight size={15} /></button></Card></section>
-    </div>
-    <div className="studio-footer"><span>每一个镜头，都从你的故事开始。</span><span>FRONTEND PREVIEW <i /> 本地演示</span></div>
-  </>;
-}
 
 export function ScriptPage({ draft, setDraft, save, go, notify }: Editing) {
   const input = useRef<HTMLInputElement>(null);
@@ -56,7 +33,7 @@ export function ScriptPage({ draft, setDraft, save, go, notify }: Editing) {
     </section>
     <aside className="script-summary"><Card className="summary-card"><div className="row-between"><span className="round-icon"><ScanLine size={21} /></span><Tag tone="orange">{isSample ? '手写参考拆解' : '等待拆解'}</Tag></div><h2>{isSample ? '故事里的每个细节' : '新的故事，新的起点'}</h2><p className="muted">{isSample ? '萧炎与纳兰嫣然在云岚宗空地对峙，交谈后准备交手，尚未出招。' : '保存你的剧本后，等待接入 Agent 来整理人物、场次和分镜。示例拆解不会套用到新剧本上。'}</p>
       {isSample && <><div className="entity-stat-row"><div><strong>02</strong><span>人物</span></div><div><strong>01</strong><span>场次</span></div><div><strong>02</strong><span>道具</span></div></div><div className="fact-group"><h3>出场人物</h3><div className="character-chips"><span><i className="avatar-crop left" />萧炎</span><span><i className="avatar-crop right" />纳兰嫣然</span></div></div><div className="fact-group"><h3>地点与道具</h3><div className="tags"><Tag>云岚宗空地</Tag><Tag>剑</Tag><Tag>重尺</Tag></div></div><button className="button secondary full-width" onClick={() => go('storyboard')}>查看参考分镜 <ArrowRight size={16} /></button></>}
-      <Notice>AI 拆解尚未接入。当前可编辑、保存本地草稿，并浏览参考结果。</Notice>
+      <Notice>此练习页不调用 AI。当前可编辑、保存本地草稿，并浏览参考结果；真实项目与小说页使用后端拆解。</Notice>
     </Card><div className="small-tip"><Sparkles size={16} /><p>对白和动作来自原文；景别、运镜和时长是可以修改的设计。</p></div></aside></div>
     <Modal open={replaceOpen} onClose={() => setReplaceOpen(false)} title="载入练习剧本"><p className="muted">当前编辑区将替换为“赴约”练习原文。已保存的草稿在你再次点击保存前保持不变。</p><div className="modal-actions"><button className="button secondary" onClick={() => setReplaceOpen(false)}>保留当前内容</button><button className="button primary" onClick={() => { setDraft(d => ({ ...d, script: originalScript })); setReplaceOpen(false); notify('已载入练习原文。'); }}>载入练习</button></div></Modal>
   </>;
@@ -92,13 +69,6 @@ export function StoryboardPage({ draft, setDraft, save, notify, go }: Editing) {
   </>;
 }
 
-export function AssetPage({ go }: Common) {
-  const [filter, setFilter] = useState('全部');
-  const [selected, setSelected] = useState<number | null>(null);
-  const items = [{ title: '萧炎', kind: '人物', sub: '黑衣造型 · 设计示意', crop: 'actor-left' }, { title: '纳兰嫣然', kind: '人物', sub: '白衣造型 · 设计示意', crop: 'actor-right' }, { title: '云岚宗空地', kind: '场景', sub: '庭院空间 · 设计示意', crop: 'location-crop' }];
-  return <><PageHeading eyebrow="03 / VISUAL LIBRARY" title="让每一幕，有共同的视觉。" description="人物、场景与道具的参考，会成为镜头之间的一致性依据。"><ArrowButton secondary onClick={() => go('flow', 4)}>了解资产准备</ArrowButton></PageHeading><div className="board-toolbar"><div className="segmented">{['全部', '人物', '场景', '道具'].map(v => <button key={v} aria-pressed={filter === v} onClick={() => setFilter(v)}>{v}</button>)}</div><Tag>示例参考库</Tag></div><div className="asset-grid">{items.map((item, i) => filter !== '全部' && item.kind !== filter ? null : <Card className="asset-card" key={item.title}><button onClick={() => setSelected(i)}><div className={`asset-image ${item.crop}`}><img src={sampleImage} alt={`${item.title}的示意图裁切`} /><span className="screen-pill">造型示意</span><span className="asset-expand"><ArrowUpRight size={18} /></span></div><div className="asset-info"><span className="mini-label">{item.kind === '人物' ? 'CHARACTER' : 'LOCATION'}</span><h3>{item.title}</h3><p>{item.sub}</p></div></button></Card>)}{(filter === '全部' || filter === '道具') && <Card className="asset-placeholder"><Box size={30} strokeWidth={1.3} /><h3>剑 / 重尺</h3><p>原文已提取道具需求。<br />独立素材等待制作。</p><Tag>尚无道具资产</Tag></Card>}</div><Notice>这三张参考均来自同一张 AI 示意图的裁切，外观并非官方设定。真实资产上传、检索、生成和质检将在后续接入。</Notice><Modal open={selected !== null} title={items[selected ?? 0].title} onClose={() => setSelected(null)}><img className="asset-modal-image" src={sampleImage} alt="完整造型示意图" /><p className="muted">完整参考画面。当前仅用于界面和视觉方向演示。</p></Modal></>;
-}
-
 function FlowVisual({ step, go }: { step: number; go: Common['go'] }) {
   if (step === 5) return <WhitePreview />;
   if (step === 1) return <div className="flow-document"><div className="paper-top"><span>SCREENPLAY / 001</span><FileText size={20} /></div><h3>赴约，交手之前</h3><p className="paper-scene">云岚宗 · 一处空地</p><p>萧炎与纳兰嫣然相对而立。</p><div className="paper-dialogue"><b>萧炎</b><p>我来了。今天，把这桩旧事了结。</p><b>纳兰嫣然</b><p>你想靠这一战，让我收回当年的决定？</p><b>萧炎</b><p>我要的，是你正视站在这里的人。</p></div><button className="text-button orange-text" onClick={() => go('script')}>打开剧本工作区 <ArrowUpRight size={15} /></button></div>;
@@ -119,6 +89,6 @@ export function FlowPage({ step, go }: Common & { step: number }) {
   </>;
 }
 
-export function SettingsPage({ notify }: Common) {
-  return <><PageHeading eyebrow="YOUR WORKSPACE" title="为下一次创作，准备就绪。" description="了解当前工作台的连接状态与保存方式。" /><div className="settings-grid"><Card className="settings-card"><span className="round-icon"><Settings2 size={23} /></span><h2>模型连接</h2><Tag>尚未接入</Tag><p>本轮完成前端。后续通过本机后端配置模型；这里不会读取、保存或发送 API 密钥。</p><button className="button secondary" onClick={() => notify('模型连接需要后端接口；当前工作台不发起模型调用。')}>查看接入状态 <Info size={14} /></button></Card><Card className="settings-card"><span className="round-icon"><Save size={23} /></span><h2>本地草稿</h2><Tag tone="green">浏览器保存</Tag><p>点击保存后，剧本文本和分镜修改会保留在当前浏览器。换浏览器不会同步，清理网站数据会移除草稿。</p><p className="settings-small">重要修改可以在分镜页导出 JSON 留存。数据库、完整版本恢复与生产任务将在后续接入。</p></Card><Card className="settings-card"><span className="round-icon"><WandSparkles size={23} /></span><h2>关于这个版本</h2><Tag tone="orange">前端预览 0.1</Tag><p>可体验剧本编辑、分镜调整、参考资产、完整流程和白模机位。AI 生图、生视频、配音与自动质检尚未连接。</p><p className="settings-small">动效遵循系统“减少动态效果”设置，所有制作数据均在本地演示。</p></Card></div></>;
+export function SettingsPage(_props: Common) {
+  return <><PageHeading eyebrow="YOUR WORKSPACE" title="为下一次创作，准备就绪。" description="管理模型连接，了解当前工作台的保存方式。" /><div className="settings-grid"><ModelConnectionSummary /><Card className="settings-card"><span className="round-icon"><Save size={23} /></span><h2>数据与草稿</h2><Tag tone="green">按页面保存</Tag><p>小说、真实剧本项目、校对历史与资产引用由本机后端存入数据库；请点击相应页面的保存按钮。</p><p className="settings-small">剧本编辑样例与示例分镜仍是浏览器草稿，换浏览器不会同步；正式数据请备份本机数据库。</p></Card><Card className="settings-card"><span className="round-icon"><WandSparkles size={23} /></span><h2>关于这个版本</h2><Tag tone="orange">本地工作台 0.1</Tag><p>已接入小说与剧本拆解、校对保存、资产引用和分镜设计。模型连接按用途独立管理。</p><p className="settings-small">小说待补资产已接单张生图、导入和关联；「自动成片」可按描述生成独立视频片段，尚未绑定分镜与整集剪辑；角色配音未接入。3D 导演台保持现状。</p></Card></div></>;
 }

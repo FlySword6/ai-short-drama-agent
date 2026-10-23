@@ -15,3 +15,20 @@ export class BreakdownError extends Error {
     this.name = "BreakdownError";
   }
 }
+
+export type PaidModelCallState = "none" | "confirmed" | "unknown";
+
+/** Internal execution signal used by the production orchestrator. The public
+ * error remains sanitized while preserving whether a paid request definitely
+ * ran, may have run, or never reached the adapter. */
+export class PaidModelExecutionError extends BreakdownError {
+  constructor(
+    status: number,
+    code: string,
+    message: string,
+    public readonly paidModelCallState: PaidModelCallState,
+  ) {
+    super(status, code, message);
+    this.name = "PaidModelExecutionError";
+  }
+}

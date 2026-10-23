@@ -3,12 +3,13 @@ const assert = require('node:assert/strict');
 const { readConfig } = require('../dist/config');
 const { InMemoryBreakdownRepository } = require('../dist/breakdown/repository');
 const { BreakdownService } = require('../dist/breakdown/service');
+const { MaasStageModelAdapter } = require('../dist/breakdown/model-adapter');
 const {
   ExtractFactsStageRunner,
   SingleModelCallExtractFactsExecutor,
 } = require('../dist/breakdown/execution');
 
-const config = readConfig({});
+const config = readConfig({ LLM_BASE_URL: 'https://model.test/openai', LLM_API_KEY: 'test-only-api-key' });
 
 function fixture(options = {}) {
   let ordinal = 0;
@@ -146,7 +147,8 @@ test('P0.4 rejects a fact supported only by a context alias and fails closed', a
   const { service, runner, repository } = fixture({ adapter, targetEstimatedTokens: 6 });
   const rawText = ['甲走进房间。', '乙关上房门。', '甲看向窗外。', '乙放下钥匙。'].join('\n');
   const { run } = await prepared(service, rawText);
-  await assert.rejects(runner.run(run.id), (error) => error.code === 'CONTEXT_ONLY_EVIDENCE');
+  await assert.rejects(runner.run(run.id), (error) => error.code === 'CONTEXT_ONLY_EVIDENCE'
+    && error.paidModelCallState === 'confirmed');
   const failedRun = await service.getRun(run.id);
   assert.equal(failedRun.status, 'failed');
   assert.equal(failedRun.task.state, 'failed');
@@ -163,7 +165,8 @@ test('P0.4 records a sanitized adapter failure and does not save raw errors or a
   };
   const { service, runner, repository } = fixture({ adapter });
   const { run } = await prepared(service);
-  await assert.rejects(runner.run(run.id), (error) => error.code === 'MODEL_ADAPTER_FAILED');
+  await assert.rejects(runner.run(run.id), (error) => error.code === 'MODEL_ADAPTER_FAILED'
+    && error.paidModelCallState === 'unknown');
   const failedRun = await service.getRun(run.id);
   const snapshot = await repository.getExecutionSnapshot(failedRun.task.activeAttemptId);
   assert.equal(snapshot.attempt.status, 'failed');
@@ -193,11 +196,69 @@ test('P0.4 enforces maxModelCalls before a second adapter invocation', async () 
   };
   const { service, runner, repository } = fixture({ adapter, executor });
   const { run } = await prepared(service);
-  await assert.rejects(runner.run(run.id), (error) => error.code === 'MODEL_CALL_LIMIT_REACHED');
+  await assert.rejects(runner.run(run.id), (error) => error.code === 'MODEL_CALL_LIMIT_REACHED'
+    && error.paidModelCallState === 'confirmed');
   const failedRun = await service.getRun(run.id);
   const snapshot = await repository.getExecutionSnapshot(failedRun.task.activeAttemptId);
   assert.equal(adapterCalls, 1);
   assert.equal(snapshot.modelCalls.length, 1);
   assert.equal(snapshot.modelCalls[0].status, 'succeeded');
   assert.equal(snapshot.attempt.status, 'failed');
+});
+
+test('removed provider, model and reasoning snapshots remain readable but cannot begin another attempt', async () => {
+  const legacyConfigurations = [
+    { provider: 'local-proxy', model: 'gpt-5.6-terra', reasoningEffort: 'medium' },
+    { provider: 'maas', model: 'gpt-5.6-terra', reasoningEffort: 'model-default' },
+    { provider: 'maas', model: config.defaultModel, reasoningEffort: 'high' },
+  ];
+  for (const modelConfig of legacyConfigurations) {
+    let calls = 0;
+    const { repository, service, runner } = fixture({ adapter: { async call() { calls++; throw new Error('must not execute'); } } });
+    const { run } = await prepared(service);
+    // Simulate the immutable snapshot saved by the previous provider version.
+    repository.runs.get(run.id).modelConfig = structuredClone(modelConfig);
+    const before = await service.getRun(run.id);
+    assert.deepEqual(before.modelConfig, modelConfig);
+    await assert.rejects(runner.run(run.id), error => error.status === 409 && error.code === 'MODEL_CONFIGURATION_CHANGED');
+    assert.deepEqual(await service.getRun(run.id), before);
+    assert.equal(repository.attempts.size, 0);
+    assert.equal(repository.modelCalls.size, 0);
+    assert.equal(calls, 0);
+  }
+});
+
+test('unconfigured MAAS adapter blocks execution before creating attempt or call records', async () => {
+  let calls = 0;
+  const adapter = new MaasStageModelAdapter(readConfig({}), async () => { calls++; throw new Error('must not call'); });
+  const { repository, service, runner } = fixture({ adapter });
+  const { run } = await prepared(service);
+  await assert.rejects(runner.run(run.id), error => error.status === 503 && error.code === 'MODEL_NOT_CONFIGURED');
+  assert.equal((await service.getRun(run.id)).status, 'draft');
+  assert.equal(repository.attempts.size, 0);
+  assert.equal(repository.modelCalls.size, 0);
+  assert.equal(calls, 0);
+});
+
+test('MAAS stage adapter sends only the new model and parses the controlled JSON result', async () => {
+  let calls = 0;
+  const output = { synopsis: null, characters: [], locations: [], props: [], scenes: [], dialogues: [] };
+  const adapter = new MaasStageModelAdapter(config, async (url, options) => {
+    calls++;
+    assert.equal(url, 'https://model.test/openai/chat/completions');
+    assert.equal(options.headers['api-key'], 'test-only-api-key');
+    const body = JSON.parse(options.body);
+    assert.equal(body.model, config.defaultModel);
+    assert.equal(body.stream, false);
+    assert.equal(Object.hasOwn(body, 'reasoning_effort'), false);
+    assert.equal(body.max_tokens, 4096);
+    return new Response(JSON.stringify({ id: 'maas-stage-fake', model: body.model,
+      choices: [{ finish_reason: 'stop', message: { content: JSON.stringify(output) } }],
+      usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 } }));
+  });
+  const result = await adapter.call({ model: config.defaultModel, reasoningEffort: 'model-default', maxOutputTokens: 4096,
+    payload: { operation: 'extractFacts', systemPrompt: 'Return JSON', messages: [{ role: 'user', content: 'synthetic test' }] } });
+  assert.deepEqual(result.output, output);
+  assert.equal(result.providerRequestId, 'maas-stage-fake');
+  assert.equal(calls, 1);
 });

@@ -6,6 +6,7 @@ import { sliceCodePoints, type SourceRef } from "./source-index";
 
 export const PLAN_CONTENT_SCHEMA_VERSION = "breakdown-plan-content/1";
 export const PLAN_VALIDATOR_VERSION = "extract-facts-validator/1";
+export const ENTITY_EDIT_VALIDATOR_VERSION = "entity-edit-validator/1";
 
 const OpaqueId = Type.String({ minLength: 3, maxLength: 128, pattern: "^[a-z][a-z0-9_-]*$" });
 const Nonblank = (maxLength: number) => Type.String({ minLength: 1, maxLength, pattern: "\\S" });
@@ -59,7 +60,23 @@ export const CreateExtractFactsCandidateSchema = Type.Object({
 export type CreateExtractFactsCandidateRequest = Static<typeof CreateExtractFactsCandidateSchema>;
 export type SourcedText = Static<typeof SourcedTextSchema>;
 
-export interface PlanEntity extends Omit<Static<typeof CandidateEntitySchema>, "tempId"> { id: string }
+const PlanTextSchema = Type.Object({ ...SourcedTextSchema.properties,
+  origin: Type.Union([Type.Literal("source"), Type.Literal("user")]),
+}, { additionalProperties: false });
+const PlanEntitySchema = Type.Object({
+  id: OpaqueId, name: PlanTextSchema,
+  aliases: Type.Array(PlanTextSchema, { maxItems: 128 }),
+  description: Type.Union([Type.Null(), PlanTextSchema]), sourceRefs: SourceRefs,
+}, { additionalProperties: false });
+const EntityFieldSchema = Type.Union([Type.Literal("name"), Type.Literal("aliases"), Type.Literal("description")]);
+const EntityManualLockSchema = Type.Object({
+  targetType: Type.Literal("entity"), targetId: OpaqueId,
+  fields: Type.Array(EntityFieldSchema, { minItems: 1, maxItems: 3, uniqueItems: true }),
+  introducedInRevisionId: OpaqueId,
+}, { additionalProperties: false });
+export type PlanText = Static<typeof PlanTextSchema>;
+export type PlanEntity = Static<typeof PlanEntitySchema>;
+export type EntityManualLock = Static<typeof EntityManualLockSchema>;
 export interface PlanScene extends Omit<Static<typeof CandidateSceneSchema>, "tempId" | "locationTempId" | "characterTempIds"> {
   id: string;
   locationId: string | null;
@@ -80,7 +97,7 @@ export interface ExtractFactsPlanContent {
   dialogues: PlanDialogue[];
   scenes: PlanScene[];
   assetRequirements: [];
-  manualLocks: [];
+  manualLocks: EntityManualLock[];
 }
 
 export interface PlanRevisionRecord {
@@ -91,22 +108,115 @@ export interface PlanRevisionRecord {
   sourceTaskId: string;
   /** Null for a manually submitted P0.3 candidate; set for a recorded stage execution. */
   attemptId: string | null;
-  parentRevisionId: null;
+  parentRevisionId: string | null;
   rebasedFromRevisionId: null;
   createdAt: string;
-  createdBy: "agent";
-  reason: "extract";
+  createdBy: "agent" | "user";
+  reason: "extract" | "manualEdit";
   scope: { kind: "project"; targetId: null };
   requirements: BreakdownRequirements;
   content: ExtractFactsPlanContent;
   status: "candidate";
-  validatorVersion: typeof PLAN_VALIDATOR_VERSION;
+  validatorVersion: typeof PLAN_VALIDATOR_VERSION | typeof ENTITY_EDIT_VALIDATOR_VERSION;
 }
 
 interface ScriptForPlanValidation { id: string; rawText: string }
 
+const EntityEditSchema = Type.Object({
+  kind: Type.Union([Type.Literal("character"), Type.Literal("location"), Type.Literal("prop")]),
+  entityId: OpaqueId, name: Nonblank(20_000),
+  aliases: Type.Array(Nonblank(20_000), { maxItems: 128 }),
+  description: Type.Union([Type.Null(), Nonblank(20_000)]),
+}, { additionalProperties: false });
+export const CreateEntityEditsSchema = Type.Object({
+  expectedActivePlanRevisionId: Type.Union([Type.Null(), OpaqueId]),
+  edits: Type.Array(EntityEditSchema, { minItems: 1, maxItems: 6_000 }),
+}, { additionalProperties: false });
+export type CreateEntityEditsRequest = Static<typeof CreateEntityEditsSchema>;
+
+const StoredContentSchema = Type.Object({
+  schemaVersion: Type.Literal(PLAN_CONTENT_SCHEMA_VERSION),
+  synopsis: Type.Union([Type.Null(), SourcedTextSchema]),
+  characters: Type.Array(PlanEntitySchema, { maxItems: 2_000 }),
+  locations: Type.Array(PlanEntitySchema, { maxItems: 2_000 }),
+  props: Type.Array(PlanEntitySchema, { maxItems: 2_000 }),
+  scenes: Type.Array(Type.Object({
+    ...Type.Omit(CandidateSceneSchema, ["tempId", "locationTempId", "characterTempIds"]).properties,
+    id: OpaqueId, locationId: Type.Union([Type.Null(), OpaqueId]),
+    characterIds: Type.Array(OpaqueId, { maxItems: 1_000, uniqueItems: true }),
+    shots: Type.Array(Type.Unknown(), { maxItems: 0 }),
+  }, { additionalProperties: false }), { maxItems: 2_000 }),
+  dialogues: Type.Array(Type.Object({
+    ...Type.Omit(CandidateDialogueSchema, ["tempId", "sceneTempId", "speakerTempId"]).properties,
+    id: OpaqueId, sceneId: OpaqueId, speakerId: Type.Union([Type.Null(), OpaqueId]),
+  }, { additionalProperties: false }), { maxItems: 20_000 }),
+  assetRequirements: Type.Array(Type.Unknown(), { maxItems: 0 }),
+  manualLocks: Type.Array(EntityManualLockSchema, { maxItems: 18_000 }),
+}, { additionalProperties: false });
 const ajv = new Ajv({ allErrors: false });
 const validateRequest = ajv.compile<CreateExtractFactsCandidateRequest>(CreateExtractFactsCandidateSchema);
+const validateEntityEdits = ajv.compile<CreateEntityEditsRequest>(CreateEntityEditsSchema);
+const validateStoredContent = ajv.compile<ExtractFactsPlanContent>(StoredContentSchema);
+
+export function parseCreateEntityEdits(value: unknown): CreateEntityEditsRequest {
+  if (!validateEntityEdits(value)) {
+    throw new BreakdownError(400, "INVALID_ENTITY_EDITS_REQUEST", "实体校对请求不符合约定，请检查名称、别名和说明。");
+  }
+  return structuredClone(value);
+}
+
+/** A local user correction, never a model call or an in-place rewrite. */
+export function materializeEntityEdits(base: ExtractFactsPlanContent, edits: CreateEntityEditsRequest["edits"], context: {
+  script: ScriptForPlanValidation; revisionId: string;
+}): ExtractFactsPlanContent {
+  parseCreateEntityEdits({ expectedActivePlanRevisionId: null, edits });
+  validateStoredPlanContent(base, context.script);
+  const content = structuredClone(base);
+  const groups = { character: content.characters, location: content.locations, prop: content.props };
+  const seen = new Set<string>();
+  let changed = false;
+  for (const edit of edits) {
+    if (seen.has(edit.entityId)) invalid("同一实体不能在一次校对中重复提交。");
+    seen.add(edit.entityId);
+    const entity = groups[edit.kind].find((entry) => entry.id === edit.entityId);
+    if (!entity) invalid("要校对的实体不存在或类型不匹配。");
+    const fields: EntityManualLock["fields"] = [];
+    const name = edit.name === entity.name.value ? edit.name : edit.name.trim();
+    const aliases = edit.aliases.map((alias) => entity.aliases.some((existing) => existing.value === alias) ? alias : alias.trim());
+    const description = edit.description === (entity.description?.value ?? null)
+      ? edit.description : edit.description?.trim() ?? null;
+    if (new Set(aliases).size !== aliases.length) invalid("别名不能重复。");
+    const userText = (value: string, previous?: PlanText | null): PlanText => ({
+      value, origin: "user", sourceRefs: cloneRefs(previous?.sourceRefs ?? entity.sourceRefs), answerIds: [],
+    });
+    if (name !== entity.name.value) {
+      entity.name = userText(name, entity.name);
+      fields.push("name");
+    }
+    if (JSON.stringify(aliases) !== JSON.stringify(entity.aliases.map((alias) => alias.value))) {
+      entity.aliases = aliases.map((value) => entity.aliases.find((alias) => alias.value === value) ?? userText(value));
+      fields.push("aliases");
+    }
+    if (description !== (entity.description?.value ?? null)) {
+      entity.description = description === null ? null : userText(description, entity.description);
+      fields.push("description");
+    }
+    if (fields.length > 0) {
+      changed = true;
+      // Retain protection for earlier edits, but give newly edited fields their new revision provenance.
+      content.manualLocks = content.manualLocks.flatMap((lock) => {
+        if (lock.targetId !== entity.id) return [lock];
+        const remaining = lock.fields.filter((field) => !fields.includes(field));
+        return remaining.length ? [{ ...lock, fields: remaining }] : [];
+      });
+      content.manualLocks.push({ targetType: "entity", targetId: entity.id, fields,
+        introducedInRevisionId: context.revisionId });
+    }
+  }
+  if (!changed) throw new BreakdownError(422, "ENTITY_EDITS_UNCHANGED", "没有实际修改，无需创建新版本。");
+  validateStoredPlanContent(content, context.script);
+  return content;
+}
 
 export function parseCreateExtractFactsCandidate(value: unknown): CreateExtractFactsCandidateRequest {
   if (!validateRequest(value)) {
@@ -189,22 +299,42 @@ export function materializeExtractFactsCandidate(input: CreateExtractFactsCandid
 }
 
 export function validateStoredPlanContent(content: ExtractFactsPlanContent, script: ScriptForPlanValidation): void {
-  if (content.schemaVersion !== PLAN_CONTENT_SCHEMA_VERSION) invalid("候选计划版本不受支持。");
-  if (!Array.isArray(content.assetRequirements) || content.assetRequirements.length !== 0
-    || !Array.isArray(content.manualLocks) || content.manualLocks.length !== 0
-    || !Array.isArray(content.scenes) || content.scenes.some((scene) => !Array.isArray(scene.shots) || scene.shots.length !== 0)) {
-    invalid("事实候选不能提前包含分镜、资产需求或人工锁。");
-  }
+  if (!validateStoredContent(content)) invalid("已保存的候选计划结构无效。");
   const ids = new Set<string>();
   for (const item of [...content.characters, ...content.locations, ...content.props, ...content.scenes, ...content.dialogues]) {
     if (ids.has(item.id)) invalid("候选计划稳定 ID 重复。");
     ids.add(item.id);
   }
+  const entityIds = new Set([...content.characters, ...content.locations, ...content.props].map((entity) => entity.id));
+  const lockedFields = new Set<string>();
+  for (const lock of content.manualLocks) {
+    if (!entityIds.has(lock.targetId)) invalid("人工保护引用了不存在的实体。");
+    for (const field of lock.fields) {
+      const key = `${lock.targetId}:${field}`;
+      if (lockedFields.has(key)) invalid("同一实体字段的人工保护重复。");
+      lockedFields.add(key);
+    }
+  }
+  for (const entity of [...content.characters, ...content.locations, ...content.props]) {
+    for (const [field, values] of [["name", [entity.name]], ["aliases", entity.aliases],
+      ["description", entity.description ? [entity.description] : []]] as const) {
+      if (values.some((value) => value.origin === "user") && !lockedFields.has(`${entity.id}:${field}`)) {
+        invalid("人工修改字段缺少保护记录。");
+      }
+    }
+  }
+  // Reuse the original reference/relationship rules, without weakening the source-only model contract.
+  const sourceEntity = ({ id, ...entry }: PlanEntity): Static<typeof CandidateEntitySchema> => ({
+    tempId: id, ...entry,
+    name: { ...entry.name, origin: "source" },
+    aliases: entry.aliases.map((alias) => ({ ...alias, origin: "source" })),
+    description: entry.description ? { ...entry.description, origin: "source" } : null,
+  });
   const candidate: CreateExtractFactsCandidateRequest = {
     synopsis: content.synopsis,
-    characters: content.characters.map(({ id, ...entry }) => ({ tempId: id, ...entry })),
-    locations: content.locations.map(({ id, ...entry }) => ({ tempId: id, ...entry })),
-    props: content.props.map(({ id, ...entry }) => ({ tempId: id, ...entry })),
+    characters: content.characters.map(sourceEntity),
+    locations: content.locations.map(sourceEntity),
+    props: content.props.map(sourceEntity),
     scenes: content.scenes.map(({ id, locationId, characterIds, shots, ...entry }) => ({
       tempId: id, locationTempId: locationId, characterTempIds: characterIds, ...entry,
     })),

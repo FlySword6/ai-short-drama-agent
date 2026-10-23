@@ -9,8 +9,8 @@ import {
 import { BreakdownError } from "./errors";
 import type { BreakdownRequirements, CreateProjectRequest } from "./contracts";
 import type { PostgresDatabase } from "../db/client";
-import { PLAN_VALIDATOR_VERSION, validateStoredPlanContent, type PlanRevisionRecord } from "./plan";
-import type { PlanAdoptionRecord, PlanCheckRecord, PlanIssueRecord } from "./quality";
+import { ENTITY_EDIT_VALIDATOR_VERSION, PLAN_VALIDATOR_VERSION, validateStoredPlanContent, type PlanRevisionRecord } from "./plan";
+import { FACT_CHECK_RULE_VERSION, type PlanAdoptionRecord, type PlanCheckRecord, type PlanIssueRecord } from "./quality";
 
 export const INPUT_MANIFEST_SCHEMA_VERSION = "breakdown-input-manifest/1";
 
@@ -48,9 +48,11 @@ export interface RunScope {
 }
 
 export interface ResolvedModelConfig {
-  provider: "local-proxy";
+  /** Historical identifiers are metadata, not executable provider adapters. */
+  provider: string;
   model: string;
   reasoningEffort: string;
+  connectionRevision?: string;
 }
 
 export interface InputManifestEntry {
@@ -175,7 +177,9 @@ export interface BreakdownRepository {
   getRun(runId: string): Promise<BreakdownRunRecord | null>;
   listRuns(projectId: string): Promise<BreakdownRunRecord[]>;
   createPlanRevision(input: PlanRevisionRecord): Promise<PlanRevisionRecord>;
+  createEntityEditRevision(input: PlanRevisionRecord, expectedActivePlanRevisionId: string | null): Promise<PlanRevisionRecord>;
   listPlanRevisions(runId: string): Promise<PlanRevisionRecord[]>;
+  listProjectPlanRevisions(projectId: string): Promise<PlanRevisionRecord[]>;
   getPlanRevision(planRevisionId: string): Promise<PlanRevisionRecord | null>;
   savePlanCheck(check: PlanCheckRecord, issues: PlanIssueRecord[]): Promise<PlanCheckRecord>;
   listPlanChecks(planRevisionId: string): Promise<PlanCheckRecord[]>;
@@ -220,11 +224,11 @@ interface PlanRevisionRow extends QueryResultRow {
   run_id: string;
   source_task_id: string;
   attempt_id: string | null;
-  parent_revision_id: null;
+  parent_revision_id: string | null;
   rebased_from_revision_id: null;
   created_at: Date | string;
-  created_by: "agent";
-  reason: "extract";
+  created_by: PlanRevisionRecord["createdBy"];
+  reason: PlanRevisionRecord["reason"];
   scope_json: unknown;
   requirements_json: unknown;
   content_json: unknown;
@@ -445,7 +449,13 @@ export class PostgresBreakdownRepository implements BreakdownRepository {
   }
 
   async createPlanRevision(input: PlanRevisionRecord): Promise<PlanRevisionRecord> {
+    if (input.reason !== "extract" || input.createdBy !== "agent" || input.parentRevisionId !== null) {
+      throw conflict("PLAN_REVISION_INVALID", "人工校对必须通过带基准检查的保存入口。");
+    }
     return this.database.transaction(async (client) => {
+      // Serialize candidate creation with edits and adoption for this project.
+      const project = await client.query<{ id: string }>("SELECT id FROM projects WHERE id = $1 FOR UPDATE", [input.projectId]);
+      if (!project.rows[0]) throw notFound("PROJECT_NOT_FOUND", "项目不存在。");
       const source = await client.query<{ id: string }>(`
         SELECT r.id
         FROM breakdown_runs r
@@ -477,14 +487,59 @@ export class PostgresBreakdownRepository implements BreakdownRepository {
     });
   }
 
+  async createEntityEditRevision(input: PlanRevisionRecord, expectedActivePlanRevisionId: string | null): Promise<PlanRevisionRecord> {
+    if (input.reason !== "manualEdit" || input.createdBy !== "user" || input.parentRevisionId === null || input.attemptId !== null) {
+      throw conflict("PLAN_REVISION_INVALID", "人工校对版本来源无效。");
+    }
+    return this.database.transaction(async (client) => {
+      const project = await client.query<ProjectRow>(
+        `SELECT ${projectColumns} FROM projects WHERE id = $1 FOR UPDATE`, [input.projectId]);
+      const current = project.rows[0];
+      if (!current) throw notFound("PROJECT_NOT_FOUND", "项目不存在。");
+      if (current.current_script_version_id !== input.scriptVersionId
+        || current.active_plan_revision_id !== expectedActivePlanRevisionId) {
+        throw conflict("PLAN_EDIT_CONFLICT", "剧本或已采用版本已变化，请刷新后重新校对。");
+      }
+      const latest = await client.query<{ id: string; run_id: string; source_task_id: string }>(`
+        SELECT id, run_id, source_task_id FROM plan_revisions
+        WHERE project_id = $1 AND script_version_id = $2
+        ORDER BY revision_order DESC LIMIT 1
+      `, [input.projectId, input.scriptVersionId]);
+      const base = latest.rows[0];
+      if (!base || base.id !== input.parentRevisionId || base.run_id !== input.runId || base.source_task_id !== input.sourceTaskId) {
+        throw conflict("PLAN_EDIT_CONFLICT", "已有更新的拆解候选，请刷新后基于最新版本校对。");
+      }
+      await client.query(`
+        INSERT INTO plan_revisions (
+          id, project_id, script_version_id, run_id, source_task_id,
+          attempt_id, parent_revision_id, rebased_from_revision_id, created_at, created_by,
+          reason, scope_json, requirements_json, content_json, status, validator_version
+        ) VALUES ($1, $2, $3, $4, $5, NULL, $6, NULL, $7, 'user', 'manualEdit',
+          $8::jsonb, $9::jsonb, $10::jsonb, 'candidate', $11)
+      `, [input.id, input.projectId, input.scriptVersionId, input.runId, input.sourceTaskId,
+        input.parentRevisionId, input.createdAt, JSON.stringify(input.scope), JSON.stringify(input.requirements),
+        JSON.stringify(input.content), input.validatorVersion]);
+      return clone(input);
+    });
+  }
+
   async listPlanRevisions(runId: string): Promise<PlanRevisionRecord[]> {
     const result = await this.database.query<PlanRevisionRow>(`
       SELECT p.*, s.raw_text
       FROM plan_revisions p
       JOIN script_versions s ON s.id = p.script_version_id
       WHERE p.run_id = $1
-      ORDER BY p.created_at, p.id
+      ORDER BY p.revision_order
     `, [runId]);
+    return result.rows.map(toPlanRevision);
+  }
+
+  async listProjectPlanRevisions(projectId: string): Promise<PlanRevisionRecord[]> {
+    const result = await this.database.query<PlanRevisionRow>(`
+      SELECT p.*, s.raw_text
+      FROM plan_revisions p JOIN script_versions s ON s.id = p.script_version_id
+      WHERE p.project_id = $1 ORDER BY p.revision_order
+    `, [projectId]);
     return result.rows.map(toPlanRevision);
   }
 
@@ -558,18 +613,21 @@ export class PostgresBreakdownRepository implements BreakdownRepository {
         JOIN plan_checks c ON c.plan_revision_id = p.id
         WHERE p.id = $1 AND p.project_id = $2 AND p.script_version_id = $3
           AND c.id = $4 AND c.result = 'passed' AND c.rule_version = $5
+          AND p.id = (SELECT latest.id FROM plan_revisions latest
+            WHERE latest.project_id = p.project_id AND latest.script_version_id = p.script_version_id
+            ORDER BY latest.revision_order DESC LIMIT 1)
           AND NOT EXISTS (SELECT 1 FROM plan_issues i WHERE i.check_id = c.id AND i.blocking)
       `, [input.toRevisionId, input.projectId, current.current_script_version_id,
-        input.checkId, "extract-facts-completeness/1"]);
+        input.checkId, FACT_CHECK_RULE_VERSION]);
       if (!eligibility.rows[0]) {
-        throw conflict("PLAN_NOT_ADOPTABLE", "候选计划没有通过当前检查，或与当前剧本版本不一致。");
+        throw conflict("PLAN_NOT_ADOPTABLE", "候选计划未通过当前检查、与当前剧本不一致，或已有更新候选；请刷新后重新检查。");
       }
       await client.query(`
         INSERT INTO plan_adoptions
           (id, project_id, from_revision_id, to_revision_id, check_id, actor, created_at)
-        VALUES ($1, $2, $3, $4, $5, 'user', $6)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
       `, [input.id, input.projectId, input.fromRevisionId, input.toRevisionId,
-        input.checkId, input.createdAt]);
+        input.checkId, input.actor, input.createdAt]);
       await client.query("UPDATE projects SET active_plan_revision_id = $1, active_storyboard_revision_id = NULL WHERE id = $2",
         [input.toRevisionId, input.projectId]);
       return clone(input);
@@ -836,6 +894,9 @@ export class InMemoryBreakdownRepository implements BreakdownRepository {
 
   async createPlanRevision(input: PlanRevisionRecord): Promise<PlanRevisionRecord> {
     const run = this.runs.get(input.runId);
+    if (input.reason !== "extract" || input.createdBy !== "agent" || input.parentRevisionId !== null) {
+      throw conflict("PLAN_REVISION_INVALID", "人工校对必须通过带基准检查的保存入口。");
+    }
     if (!run || run.projectId !== input.projectId || run.scriptVersionId !== input.scriptVersionId
       || run.task.id !== input.sourceTaskId) {
       throw notFound("BREAKDOWN_RUN_NOT_FOUND", "拆解 Run 或事实提取任务不存在。");
@@ -850,8 +911,29 @@ export class InMemoryBreakdownRepository implements BreakdownRepository {
     return clone(input);
   }
 
+  async createEntityEditRevision(input: PlanRevisionRecord, expectedActivePlanRevisionId: string | null): Promise<PlanRevisionRecord> {
+    if (input.reason !== "manualEdit" || input.createdBy !== "user" || input.parentRevisionId === null || input.attemptId !== null) {
+      throw conflict("PLAN_REVISION_INVALID", "人工校对版本来源无效。");
+    }
+    const project = this.projects.get(input.projectId);
+    if (!project) throw notFound("PROJECT_NOT_FOUND", "项目不存在。");
+    if (project.currentScriptVersionId !== input.scriptVersionId || project.activePlanRevisionId !== expectedActivePlanRevisionId) {
+      throw conflict("PLAN_EDIT_CONFLICT", "剧本或已采用版本已变化，请刷新后重新校对。");
+    }
+    const latest = [...this.plans.values()].filter((plan) => plan.projectId === input.projectId && plan.scriptVersionId === input.scriptVersionId).at(-1);
+    if (!latest || latest.id !== input.parentRevisionId || latest.runId !== input.runId || latest.sourceTaskId !== input.sourceTaskId) {
+      throw conflict("PLAN_EDIT_CONFLICT", "已有更新的拆解候选，请刷新后基于最新版本校对。");
+    }
+    this.plans.set(input.id, clone(input));
+    return clone(input);
+  }
+
   async listPlanRevisions(runId: string): Promise<PlanRevisionRecord[]> {
     return [...this.plans.values()].filter((plan) => plan.runId === runId).map(clone);
+  }
+
+  async listProjectPlanRevisions(projectId: string): Promise<PlanRevisionRecord[]> {
+    return [...this.plans.values()].filter((plan) => plan.projectId === projectId).map(clone);
   }
 
   async getPlanRevision(planRevisionId: string): Promise<PlanRevisionRecord | null> {
@@ -885,11 +967,14 @@ export class InMemoryBreakdownRepository implements BreakdownRepository {
     }
     const plan = this.plans.get(input.toRevisionId);
     const check = this.checks.get(input.checkId);
+    const latest = [...this.plans.values()].filter((entry) => entry.projectId === project.id
+      && entry.scriptVersionId === project.currentScriptVersionId).at(-1);
     if (!plan || plan.projectId !== project.id || plan.scriptVersionId !== project.currentScriptVersionId
+      || latest?.id !== plan.id
       || !check || check.planRevisionId !== plan.id || check.result !== "passed"
-      || check.ruleVersion !== "extract-facts-completeness/1"
+      || check.ruleVersion !== FACT_CHECK_RULE_VERSION
       || [...this.issues.values()].some((issue) => issue.checkId === check.id && issue.blocking)) {
-      throw conflict("PLAN_NOT_ADOPTABLE", "候选计划没有通过当前检查，或与当前剧本版本不一致。");
+      throw conflict("PLAN_NOT_ADOPTABLE", "候选计划未通过当前检查、与当前剧本不一致，或已有更新候选；请刷新后重新检查。");
     }
     this.adoptions.set(input.id, clone(input));
     project.activePlanRevisionId = plan.id;
@@ -1066,7 +1151,7 @@ function toProject(row: ProjectRow): ProjectRecord {
 }
 
 function toCheck(row: CheckRow, issueIds: string[]): PlanCheckRecord {
-  if (row.rule_version !== "extract-facts-completeness/1") {
+  if (row.rule_version !== "extract-facts-completeness/1" && row.rule_version !== FACT_CHECK_RULE_VERSION) {
     throw new BreakdownError(500, "CHECK_RULE_UNSUPPORTED", "已保存的检查规则版本不受支持。");
   }
   return { id: row.id, projectId: row.project_id, planRevisionId: row.plan_revision_id,
@@ -1124,8 +1209,14 @@ function decodeSafeError(value: unknown): SafeExecutionError {
 }
 
 function toPlanRevision(row: PlanRevisionRow): PlanRevisionRecord {
-  if (row.validator_version !== PLAN_VALIDATOR_VERSION) {
+  if (row.validator_version !== PLAN_VALIDATOR_VERSION && row.validator_version !== ENTITY_EDIT_VALIDATOR_VERSION) {
     throw new BreakdownError(500, "PERSISTED_PLAN_INVALID", "已保存的候选计划校验版本不受支持。");
+  }
+  if ((row.reason !== "extract" && row.reason !== "manualEdit")
+    || (row.reason === "extract" && (row.created_by !== "agent" || row.parent_revision_id !== null || row.validator_version !== PLAN_VALIDATOR_VERSION))
+    || (row.reason === "manualEdit" && (row.created_by !== "user" || row.parent_revision_id === null || row.attempt_id !== null
+      || row.validator_version !== ENTITY_EDIT_VALIDATOR_VERSION))) {
+    throw new BreakdownError(500, "PERSISTED_PLAN_INVALID", "已保存的候选计划来源无效。");
   }
   const content = decodeJson<PlanRevisionRecord["content"]>(row.content_json, "stored plan content");
   validateStoredPlanContent(content, { id: row.script_version_id, rawText: row.raw_text });
@@ -1136,7 +1227,7 @@ function toPlanRevision(row: PlanRevisionRow): PlanRevisionRecord {
     createdAt: toIso(row.created_at), createdBy: row.created_by, reason: row.reason,
     scope: decodeJson<PlanRevisionRecord["scope"]>(row.scope_json, "stored plan scope"),
     requirements: decodeJson<BreakdownRequirements>(row.requirements_json, "stored plan requirements"),
-    content, status: row.status, validatorVersion: PLAN_VALIDATOR_VERSION,
+    content, status: row.status, validatorVersion: row.validator_version,
   };
 }
 

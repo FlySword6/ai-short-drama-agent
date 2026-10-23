@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { AppConfig } from "../config";
-import { findModel } from "../models/registry";
+import { configuredModel } from "../models/registry";
 import {
   buildScriptSourceIndex,
   createScriptVersion as createCanonicalScriptVersion,
@@ -15,8 +15,12 @@ import type {
 } from "./contracts";
 import { BreakdownError } from "./errors";
 import {
+  materializeEntityEdits,
   materializeExtractFactsCandidate,
+  parseCreateEntityEdits,
+  ENTITY_EDIT_VALIDATOR_VERSION,
   PLAN_VALIDATOR_VERSION,
+  type CreateEntityEditsRequest,
   type CreateExtractFactsCandidateRequest,
   type PlanRevisionRecord,
 } from "./plan";
@@ -49,18 +53,22 @@ export interface BreakdownServicePort {
   getRun(runId: string): Promise<BreakdownRunRecord>;
   listRuns(projectId: string): Promise<BreakdownRunRecord[]>;
   createExtractFactsCandidate(runId: string, input: CreateExtractFactsCandidateRequest): Promise<PlanRevisionRecord>;
+  createEntityEditCandidate(baseRevisionId: string, input: CreateEntityEditsRequest): Promise<PlanRevisionRecord>;
   createExtractFactsCandidateForAttempt(
     runId: string,
     attemptId: string,
     input: CreateExtractFactsCandidateRequest,
   ): Promise<PlanRevisionRecord>;
   listPlanRevisions(runId: string): Promise<PlanRevisionRecord[]>;
+  listProjectPlanRevisions(projectId: string): Promise<PlanRevisionRecord[]>;
   getPlanRevision(planRevisionId: string): Promise<PlanRevisionRecord>;
   checkPlan(planRevisionId: string): Promise<{ check: PlanCheckRecord; issues: PlanIssueRecord[] }>;
   listPlanChecks(planRevisionId: string): Promise<PlanCheckRecord[]>;
   listPlanIssues(checkId: string): Promise<PlanIssueRecord[]>;
   adoptPlan(projectId: string, input: {
     planRevisionId: string; checkId: string; expectedActivePlanRevisionId: string | null;
+    /** Internal production orchestration may adopt a program-checked candidate. HTTP callers never set this field. */
+    actor?: "user" | "agent";
   }): Promise<PlanAdoptionRecord>;
 }
 
@@ -80,7 +88,7 @@ export class BreakdownService implements BreakdownServicePort {
 
   constructor(
     private readonly repository: BreakdownRepository,
-    private readonly config: Pick<AppConfig, "defaultModel" | "reasoningEffort">,
+    private readonly config: Pick<AppConfig, "provider" | "defaultModel" | "reasoningEffort" | "modelConnections" | "connectionRevision">,
     options: BreakdownServiceOptions = {},
   ) {
     this.now = options.now ?? (() => new Date());
@@ -145,7 +153,7 @@ export class BreakdownService implements BreakdownServicePort {
     const createdAt = this.timestamp();
     const runId = this.nextId("run");
     const requirements = cloneRequirements(input.requirements);
-    const modelConfig = resolveModelConfig(this.config, input.modelConfig);
+    const modelConfig = resolveModelConfig(this.config.modelConnections?.resolve('breakdown') ?? this.config, input.modelConfig);
     const scope = { kind: "project" as const, targetId: null };
     const maxModelCalls = input.maxModelCalls;
     const maxOutputTokens = input.maxOutputTokens;
@@ -270,6 +278,37 @@ export class BreakdownService implements BreakdownServicePort {
     return this.repository.listPlanRevisions(runId);
   }
 
+  async listProjectPlanRevisions(projectId: string): Promise<PlanRevisionRecord[]> {
+    await this.requireProject(projectId);
+    return this.repository.listProjectPlanRevisions(projectId);
+  }
+
+  async createEntityEditCandidate(baseRevisionId: string, input: CreateEntityEditsRequest): Promise<PlanRevisionRecord> {
+    const request = parseCreateEntityEdits(input);
+    const base = await this.getPlanRevision(baseRevisionId);
+    const script = await this.getScriptVersion(base.projectId, base.scriptVersionId);
+    const revisionId = this.nextId("plan");
+    const content = materializeEntityEdits(base.content, request.edits, { script, revisionId });
+    return this.repository.createEntityEditRevision({
+      id: revisionId,
+      projectId: base.projectId,
+      scriptVersionId: base.scriptVersionId,
+      runId: base.runId,
+      sourceTaskId: base.sourceTaskId,
+      attemptId: null,
+      parentRevisionId: base.id,
+      rebasedFromRevisionId: null,
+      createdAt: this.timestamp(),
+      createdBy: "user",
+      reason: "manualEdit",
+      scope: { kind: "project", targetId: null },
+      requirements: structuredClone(base.requirements),
+      content,
+      status: "candidate",
+      validatorVersion: ENTITY_EDIT_VALIDATOR_VERSION,
+    }, request.expectedActivePlanRevisionId);
+  }
+
   async getPlanRevision(planRevisionId: string): Promise<PlanRevisionRecord> {
     const plan = await this.repository.getPlanRevision(planRevisionId);
     if (!plan) throw new BreakdownError(404, "PLAN_REVISION_NOT_FOUND", "候选计划版本不存在或已删除。");
@@ -309,7 +348,12 @@ export class BreakdownService implements BreakdownServicePort {
 
   async adoptPlan(projectId: string, input: {
     planRevisionId: string; checkId: string; expectedActivePlanRevisionId: string | null;
+    actor?: "user" | "agent";
   }): Promise<PlanAdoptionRecord> {
+    const actor = input.actor ?? "user";
+    if (actor !== "user" && actor !== "agent") {
+      throw new BreakdownError(400, "PLAN_ADOPTION_ACTOR_INVALID", "采用操作者类型无效。");
+    }
     const plan = await this.getPlanRevision(input.planRevisionId);
     if (plan.projectId !== projectId) throw new BreakdownError(404, "PLAN_REVISION_NOT_FOUND", "候选计划不属于该项目。");
     const checks = await this.repository.listPlanChecks(plan.id);
@@ -321,7 +365,7 @@ export class BreakdownService implements BreakdownServicePort {
     return this.repository.adoptPlan({
       id: this.nextId("adoption"), projectId,
       fromRevisionId: input.expectedActivePlanRevisionId,
-      toRevisionId: plan.id, checkId: check.id, actor: "user", createdAt: this.timestamp(),
+      toRevisionId: plan.id, checkId: check.id, actor, createdAt: this.timestamp(),
     });
   }
 
@@ -357,18 +401,21 @@ export class UnavailableBreakdownService implements BreakdownServicePort {
   async createExtractFactsCandidate(_: string, __: CreateExtractFactsCandidateRequest): Promise<PlanRevisionRecord> {
     return this.unavailable();
   }
+  async createEntityEditCandidate(_: string, __: CreateEntityEditsRequest): Promise<PlanRevisionRecord> { return this.unavailable(); }
   async createExtractFactsCandidateForAttempt(
     _: string,
     __: string,
     ___: CreateExtractFactsCandidateRequest,
   ): Promise<PlanRevisionRecord> { return this.unavailable(); }
   async listPlanRevisions(_: string): Promise<PlanRevisionRecord[]> { return this.unavailable(); }
+  async listProjectPlanRevisions(_: string): Promise<PlanRevisionRecord[]> { return this.unavailable(); }
   async getPlanRevision(_: string): Promise<PlanRevisionRecord> { return this.unavailable(); }
   async checkPlan(_: string): Promise<{ check: PlanCheckRecord; issues: PlanIssueRecord[] }> { return this.unavailable(); }
   async listPlanChecks(_: string): Promise<PlanCheckRecord[]> { return this.unavailable(); }
   async listPlanIssues(_: string): Promise<PlanIssueRecord[]> { return this.unavailable(); }
   async adoptPlan(_: string, __: {
     planRevisionId: string; checkId: string; expectedActivePlanRevisionId: string | null;
+    actor?: "user" | "agent";
   }): Promise<PlanAdoptionRecord> { return this.unavailable(); }
 
   private unavailable(): never {
@@ -377,11 +424,12 @@ export class UnavailableBreakdownService implements BreakdownServicePort {
 }
 
 function resolveModelConfig(
-  config: Pick<AppConfig, "defaultModel" | "reasoningEffort">,
+  config: Pick<AppConfig, "provider" | "defaultModel" | "reasoningEffort" | "connectionRevision">,
   requested: ModelConfigOverride | undefined,
 ): ResolvedModelConfig {
   const modelId = requested?.model ?? config.defaultModel;
-  const model = findModel(modelId);
+  const model = configuredModel(modelId, config.defaultModel);
+  if (config.connectionRevision && modelId !== config.defaultModel) throw new BreakdownError(400, "UNKNOWN_MODEL", "请求的模型与拆解配置不一致。");
   if (!model) throw new BreakdownError(400, "UNKNOWN_MODEL", "未配置此模型，请从 /api/models 选择。");
   const configuredEffort = model.id === config.defaultModel && config.reasoningEffort !== "model-default"
     ? config.reasoningEffort
@@ -390,7 +438,8 @@ function resolveModelConfig(
   if (!model.reasoningEfforts.includes(reasoningEffort)) {
     throw new BreakdownError(400, "EFFORT_UNSUPPORTED", "所选模型不支持此推理档位。");
   }
-  return { provider: "local-proxy", model: model.id, reasoningEffort };
+  return { provider: config.provider, model: model.id, reasoningEffort,
+    ...(config.connectionRevision ? { connectionRevision: config.connectionRevision } : {}) };
 }
 
 function cloneRequirements(value: BreakdownRequirements | undefined): BreakdownRequirements {

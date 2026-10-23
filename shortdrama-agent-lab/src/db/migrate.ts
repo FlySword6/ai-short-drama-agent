@@ -11,6 +11,25 @@ interface Migration {
   checksum: string;
 }
 
+/**
+ * 003 was originally applied with two final LF bytes; its checked-in copy has
+ * one. These exact, audited files differ only by that trailing blank line.
+ * Preserve both recorded histories; never normalize or ignore arbitrary SQL
+ * changes. No other migration or checksum is eligible for this exception.
+ */
+const EXECUTION_LEDGER_CHECKSUMS = new Set([
+  '83957719239e47e6ea3ced16f0747ca80ccc5de2eb2c6690d7ec6ab7acca68c9',
+  '4164f2cc048e8e4df705fe156577eaf3716dd72303d687c2f308c15fa707a780',
+]);
+export function acceptsRecordedChecksum(migration: Migration, recorded: string): boolean {
+  if (migration.checksum === recorded) return true;
+  return migration.version === '003'
+    && migration.fileName === '003_extract_facts_execution.sql'
+    && EXECUTION_LEDGER_CHECKSUMS.has(migration.checksum)
+    && EXECUTION_LEDGER_CHECKSUMS.has(recorded)
+    && createHash('sha256').update(migration.sql, 'utf8').digest('hex') === migration.checksum;
+}
+
 const MIGRATION_NAME = /^(\d+)_([a-z0-9_-]+)\.sql$/i;
 
 async function readMigrations(directory: string): Promise<Migration[]> {
@@ -57,7 +76,7 @@ export async function runMigrations(options: { directory?: string } = {}): Promi
       for (const migration of migrations) {
         const previousChecksum = existing.get(migration.version);
         if (previousChecksum) {
-          if (previousChecksum !== migration.checksum) {
+          if (!acceptsRecordedChecksum(migration, previousChecksum)) {
             throw new Error(`Migration checksum mismatch for ${migration.fileName}`);
           }
           continue;

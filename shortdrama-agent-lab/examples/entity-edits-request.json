@@ -1,0 +1,26 @@
+{
+  "expectedActivePlanRevisionId": null,
+  "edits": [
+    {
+      "kind": "character",
+      "entityId": "character_replace_with_actual_id",
+      "name": "林晚",
+      "aliases": ["小晚"],
+      "description": "用户校对的人物说明；请按实际剧本填写。"
+    },
+    {
+      "kind": "location",
+      "entityId": "location_replace_with_actual_id",
+      "name": "医院走廊",
+      "aliases": [],
+      "description": "用户校对的地点说明；请按实际剧本填写。"
+    },
+    {
+      "kind": "prop",
+      "entityId": "prop_replace_with_actual_id",
+      "name": "信封",
+      "aliases": [],
+      "description": null
+    }
+  ]
+}

@@ -2,7 +2,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { createApp } = require('../dist/app');
 const { readConfig } = require('../dist/config');
-const { InMemoryBreakdownRepository } = require('../dist/breakdown/repository');
+const { InMemoryBreakdownRepository, PostgresBreakdownRepository } = require('../dist/breakdown/repository');
 const { BreakdownService } = require('../dist/breakdown/service');
 
 const config = readConfig({});
@@ -35,11 +35,11 @@ function sourced(value, refs) {
   return { value, origin: 'source', sourceRefs: refs, answerIds: [] };
 }
 
-function candidate(script) {
+function candidate(script, linLineText = '林晚：你终于来了。🙂') {
   const raw = script.rawText;
   const heading = sourceRef(script.id, raw, '第1场 医院走廊 夜 内');
   const action = sourceRef(script.id, raw, '林晚推门进入。');
-  const linLine = sourceRef(script.id, raw, '林晚：你终于来了。🙂');
+  const linLine = sourceRef(script.id, raw, linLineText);
   const guLine = sourceRef(script.id, raw, '顾沉：我知道。');
   return {
     synopsis: sourced('林晚进入医院走廊，与等待她的顾沉交谈。', [heading, action, linLine, guLine]),
@@ -71,10 +71,10 @@ function candidate(script) {
   };
 }
 
-async function prepared(service) {
+async function prepared(service, linLine = '林晚：你终于来了。🙂') {
   const project = await service.createProject({ title: '候选事实测试' });
   const script = await service.createScriptVersion(project.id, {
-    rawText: '第1场 医院走廊 夜 内\r\n林晚推门进入。\r\n林晚：你终于来了。🙂\r\n顾沉：我知道。\r\n',
+    rawText: `第1场 医院走廊 夜 内\r\n林晚推门进入。\r\n${linLine}\r\n顾沉：我知道。\r\n`,
   });
   const run = await service.createDraftRun(project.id, {
     requirements: { language: '中文', visualStyle: '真人拟真', aspectRatio: '9:16' },
@@ -203,4 +203,94 @@ test('P0.5 records blocking issues and adopts only a checked current-script cand
     planRevisionId: complete.id, checkId: passed.check.id,
     expectedActivePlanRevisionId: null,
   }), (error) => error.code === 'PLAN_NOT_ADOPTABLE');
+});
+
+test('P0.5 rejects truncated dialogue even when its source quote and offsets are valid', async () => {
+  for (const quote of ['你', '终于来了。🙂', '你终于来了。', '你终于来了']) {
+    const { service } = fixture();
+    const { project, script, run } = await prepared(service);
+    const value = candidate(script);
+    value.dialogues[0].sourceRef = sourceRef(script.id, script.rawText, quote);
+    const plan = await service.createExtractFactsCandidate(run.id, value);
+    const result = await service.checkPlan(plan.id);
+    assert.equal(result.check.result, 'failed', quote);
+    const issue = result.issues.find((item) => item.code === 'DIALOGUE_INCOMPLETE');
+    assert.ok(issue, quote);
+    assert.equal(issue.sourceRefs[0].quote, '你终于来了。🙂');
+    await assert.rejects(service.adoptPlan(project.id, {
+      planRevisionId: plan.id, checkId: result.check.id, expectedActivePlanRevisionId: null,
+    }), (error) => error.code === 'PLAN_NOT_ADOPTABLE');
+  }
+});
+
+test('P0.5 excludes speaker labels from spoken dialogue', async () => {
+  const { service } = fixture();
+  const { script, run } = await prepared(service);
+  const value = candidate(script);
+  value.dialogues[0].sourceRef = sourceRef(script.id, script.rawText, '林晚：你终于来了。🙂');
+  const plan = await service.createExtractFactsCandidate(run.id, value);
+  const result = await service.checkPlan(plan.id);
+  assert.equal(result.check.result, 'failed');
+  assert.ok(result.issues.some((item) => item.code === 'DIALOGUE_BOUNDARY_INVALID'));
+});
+
+test('P0.5 accepts complete Unicode dialogue with colon, speaker cues and name columns', async () => {
+  for (const line of ['　林晚： 你终于来了。🙂　', '林晚（停住）：你终于来了。🙂',
+    '林晚:你终于来了。🙂', '林晚　　　你终于来了。🙂']) {
+    const { service } = fixture();
+    const { script, run } = await prepared(service, line);
+    const plan = await service.createExtractFactsCandidate(run.id, candidate(script, line));
+    const result = await service.checkPlan(plan.id);
+    assert.deepEqual(result.issues, [], line);
+    assert.equal(result.check.result, 'passed');
+  }
+});
+
+test('P0.5 flags dialogue containing ambiguous stage cues instead of silently accepting a fragment', async () => {
+  const line = '林晚：你终于来了。🙂（停住）我还以为你不来了。';
+  const { service } = fixture();
+  const { script, run } = await prepared(service, line);
+  const plan = await service.createExtractFactsCandidate(run.id, candidate(script, line));
+  const result = await service.checkPlan(plan.id);
+  assert.equal(result.check.result, 'failed');
+  assert.ok(result.issues.some((item) => item.code === 'DIALOGUE_BOUNDARY_UNCERTAIN'));
+});
+
+test('P0.5 retains historical checks but requires the current rule for adoption', async () => {
+  const { repository, service } = fixture();
+  const { project, script, run } = await prepared(service);
+  const plan = await service.createExtractFactsCandidate(run.id, candidate(script));
+  const result = await service.checkPlan(plan.id);
+  assert.equal(result.check.ruleVersion, 'extract-facts-completeness/2');
+  const legacy = { ...result.check, id: 'check_legacy', ruleVersion: 'extract-facts-completeness/1' };
+  await repository.savePlanCheck(legacy, []);
+  assert.ok((await service.listPlanChecks(plan.id)).some((check) => check.id === legacy.id));
+  await assert.rejects(service.adoptPlan(project.id, {
+    planRevisionId: plan.id, checkId: legacy.id, expectedActivePlanRevisionId: null,
+  }), (error) => error.code === 'PLAN_NOT_ADOPTABLE');
+  await assert.rejects(repository.adoptPlan({
+    id: 'adoption_legacy', projectId: project.id, fromRevisionId: null, toRevisionId: plan.id,
+    checkId: legacy.id, actor: 'user', createdAt: legacy.createdAt,
+  }), (error) => error.code === 'PLAN_NOT_ADOPTABLE');
+  const rechecked = await service.checkPlan(plan.id);
+  assert.equal(rechecked.check.ruleVersion, 'extract-facts-completeness/2');
+  await service.adoptPlan(project.id, {
+    planRevisionId: plan.id, checkId: rechecked.check.id, expectedActivePlanRevisionId: null,
+  });
+  assert.equal((await repository.getProject(project.id)).activePlanRevisionId, plan.id);
+});
+
+test('P0.5 PostgreSQL check decoding supports old and current rules but rejects unknown versions', async () => {
+  for (const ruleVersion of ['extract-facts-completeness/1', 'extract-facts-completeness/2', 'unknown']) {
+    const repository = new PostgresBreakdownRepository({ query: async (sql) => ({ rows: sql.includes('FROM plan_checks') ? [{
+      id: 'check_saved', project_id: 'project_saved', plan_revision_id: 'plan_saved',
+      rule_version: ruleVersion, method: 'program', result: 'passed', content_digest: 'a'.repeat(64),
+      created_at: new Date('2026-10-22T00:00:00.000Z'),
+    }] : [] }) });
+    if (ruleVersion === 'unknown') {
+      await assert.rejects(repository.listPlanChecks('plan_saved'), (error) => error.code === 'CHECK_RULE_UNSUPPORTED');
+    } else {
+      assert.equal((await repository.listPlanChecks('plan_saved'))[0].ruleVersion, ruleVersion);
+    }
+  }
 });

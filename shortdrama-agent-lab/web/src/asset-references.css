@@ -1,0 +1,59 @@
+.lib-page-compact { max-width: none; margin: 0; color: #dedee1; }
+.lib-page-compact .lib-compact-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 26px; }
+.lib-page-compact .lib-compact-toolbar > h1 { flex-shrink: 0; margin: 0; color: #dedee1; font-size: 15px; font-weight: 500; line-height: 1.5; }
+.lib-page-compact .lib-compact-controls { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.lib-page-compact .lib-search { width: 194px; min-width: 0; height: 34px; margin: 0; padding: 0 10px; gap: 7px; border: 1px solid #303033; border-radius: 7px; background: transparent; color: #77777c; }
+.lib-page-compact .lib-search:focus-within { border-color: #6b6b70; }
+.lib-page-compact .lib-search input { color: #ededee; font-size: 12px; }
+.lib-page-compact .lib-search input::placeholder { color: #76767c; }
+.lib-page-compact .lib-compact-select { display: flex; align-items: center; height: 34px; border: 1px solid #303033; border-radius: 7px; background: #232325; }
+.lib-page-compact .lib-compact-select select { height: 100%; min-width: 91px; padding: 0 8px; border: 0; border-radius: inherit; background: transparent; color: #bcbcc1; font: inherit; font-size: 12px; cursor: pointer; color-scheme: dark; }
+.lib-page-compact :is(button, input, select):focus-visible { outline: 2px solid #b8ca92; outline-offset: 4px; }
+.lib-page-compact .lib-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px 16px; }
+.lib-page-compact .lib-card { display: flex; flex-direction: column; min-width: 0; overflow: visible; padding: 0; border: 0; border-radius: 10px; background: transparent; color: inherit; text-align: left; box-shadow: none; }
+.lib-page-compact .lib-card:hover { transform: none; box-shadow: none; }
+.lib-page-compact .lib-card-image { width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border: 1px solid transparent; border-radius: 10px; background: #222224; transition: border-color .18s; }
+.lib-page-compact .lib-card-image::after { display: none; }
+.lib-page-compact .lib-card:hover .lib-card-image { border-color: #48484d; }
+.lib-page-compact .lib-card-content { display: block; width: 100%; min-width: 0; padding: 10px 2px 0; }
+.lib-page-compact .lib-card-title { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; min-width: 0; }
+.lib-page-compact .lib-card-title > h2 { max-width: 100%; overflow: hidden; margin: 0; color: #d6d6d9; font-size: 13px; font-weight: 500; line-height: 1.5; text-overflow: ellipsis; white-space: nowrap; }
+.lib-page-compact .lib-card-title > span { color: #818187; font-size: 11px; line-height: 1.5; }
+.lib-page-compact .lib-requirement-top { justify-content: center; width: 100%; height: auto; aspect-ratio: 16 / 9; margin: 0; padding: 20px; border: 1px solid transparent; border-radius: 10px; background: #222224; transition: border-color .18s, background .18s; }
+.lib-page-compact .lib-requirement-icon { width: 42px; height: 42px; border: 0; border-radius: 0; background: transparent; color: #626268; }
+.lib-page-compact .lib-card:hover .lib-requirement-top { border-color: #48484d; background: #29292c; }
+.lib-page-compact .lib-footnote { gap: 0; margin: 25px 0 0; padding: 0 2px; color: #727278; }
+.lib-page-compact .lib-footnote p { font-size: 11px; line-height: 1.8; }
+.lib-page-compact .lib-empty { min-height: 285px; padding: 28px; border: 0; border-radius: 0; background: transparent; }
+.lib-page-compact .lib-empty > span { width: auto; height: auto; margin-bottom: 18px; border: 0; border-radius: 0; background: transparent; color: #626268; }
+.lib-page-compact .lib-empty h2 { margin-bottom: 8px; color: #bdbdc4; font-size: 14px; font-weight: 400; }
+.lib-page-compact .lib-empty p { color: #797980; font-size: 12px; }
+.lib-page-compact .lib-empty .lib-button { min-height: 34px; border-color: #343439; border-radius: 7px; background: #232325; color: #bdbdc4; font-size: 11px; }
+@media (max-width: 1150px) {
+  .lib-page-compact .lib-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .lib-page-compact .lib-compact-toolbar { gap: 14px; }
+  .lib-page-compact .lib-search { width: 166px; }
+}
+@media (max-width: 900px) {
+  .lib-page-compact .lib-compact-toolbar { align-items: flex-start; flex-direction: column; gap: 16px; }
+  .lib-page-compact .lib-compact-controls { width: 100%; }
+  .lib-page-compact .lib-search { width: auto; flex: 1; }
+  .lib-page-compact .lib-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .lib-page-compact .lib-compact-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .lib-page-compact .lib-search { grid-column: 1 / -1; width: 100%; }
+  .lib-page-compact .lib-compact-select select { width: 100%; }
+  .lib-page-compact .lib-compact-toolbar { margin-bottom: 22px; }
+  .lib-page-compact .lib-grid { gap: 23px 12px; }
+  .lib-page-compact .lib-card-image, .lib-page-compact .lib-requirement-top { border-radius: 8px; }
+  .lib-page-compact .lib-card-title > h2 { font-size: 12px; }
+  .lib-page-compact .lib-card-title > span, .lib-page-compact .lib-footnote p { font-size: 10px; }
+  .lib-page-compact .lib-footnote { margin-top: 22px; }
+}
+@media (max-width: 350px) {
+  .lib-page-compact .lib-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lib-page-compact .lib-card-image, .lib-page-compact .lib-requirement-top { transition: none; }
+}

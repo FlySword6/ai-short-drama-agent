@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 import Ajv from "ajv";
 import { Type, type Static } from "@sinclair/typebox";
-import { BreakdownError } from "./errors";
+import { BreakdownError, PaidModelExecutionError, type PaidModelCallState } from "./errors";
+import { findModel } from "../models/registry";
 import type { CreateExtractFactsCandidateRequest, PlanRevisionRecord } from "./plan";
 import type {
   BreakdownRepository,
@@ -9,6 +10,7 @@ import type {
   ModelCallUsage,
   SafeExecutionError,
   StoredScriptVersion,
+  ResolvedModelConfig,
 } from "./repository";
 import { canonicalJsonSha256, type BreakdownService } from "./service";
 import {
@@ -51,6 +53,9 @@ export interface StageModelResult {
 }
 
 export interface StageModelAdapter {
+  forRun?(config: ResolvedModelConfig): StageModelAdapter;
+  /** Fail before recording an attempt when the real service is not configured. */
+  assertConfigured?(): void;
   call(input: {
     model: string;
     reasoningEffort: string;
@@ -117,6 +122,12 @@ export class ExtractFactsStageRunner {
 
   async run(runId: string): Promise<ExtractFactsRunResult> {
     const run = await this.service.getRun(runId);
+    const model = findModel(run.modelConfig.model);
+    if (!this.adapter.forRun && (run.modelConfig.provider !== "maas" || !model || !model.reasoningEfforts.includes(run.modelConfig.reasoningEffort))) {
+      throw new BreakdownError(409, "MODEL_CONFIGURATION_CHANGED", "此 Run 使用已移除的模型配置。历史结果仍可查看和校对，请新建 Run 使用当前模型。");
+    }
+    const adapter = this.adapter.forRun?.(run.modelConfig) ?? this.adapter;
+    adapter.assertConfigured?.();
     const script = await this.repository.getScriptVersion(run.projectId, run.scriptVersionId);
     if (!script) throw new BreakdownError(409, "SCRIPT_VERSION_UNAVAILABLE", "执行所需剧本版本不可用。");
     const built = buildExtractFactsStageContext(run, script, this.targetEstimatedTokens);
@@ -153,7 +164,7 @@ export class ExtractFactsStageRunner {
         });
         await this.repository.markModelCallSubmitted(call.id);
         try {
-          const result = await this.adapter.call({
+          const result = await adapter.call({
             model: run.modelConfig.model,
             reasoningEffort: run.modelConfig.reasoningEffort,
             maxOutputTokens: run.task.maxOutputTokens,
@@ -199,8 +210,15 @@ export class ExtractFactsStageRunner {
           endedAt: this.timestamp(),
         });
       }
-      if (error instanceof BreakdownError) throw error;
-      throw new BreakdownError(422, "STAGE_OUTPUT_INVALID", "事实提取结果未通过程序校验。");
+      const paidModelCallState: PaidModelCallState = snapshot?.modelCalls.some(call => call.status === "succeeded")
+        ? "confirmed"
+        : snapshot?.modelCalls.some(call => call.status === "submitted" || call.status === "failed")
+          ? "unknown"
+          : "none";
+      if (error instanceof BreakdownError) {
+        throw new PaidModelExecutionError(error.status, error.code, error.message, paidModelCallState);
+      }
+      throw new PaidModelExecutionError(422, "STAGE_OUTPUT_INVALID", "事实提取结果未通过程序校验。", paidModelCallState);
     }
   }
 

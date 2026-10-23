@@ -2,9 +2,10 @@ import { randomUUID } from 'node:crypto';
 import Ajv from 'ajv';
 import { Type, type Static } from '@sinclair/typebox';
 import type { AppConfig } from '../config';
+import { assertModelSelection, configForRole } from '../models/connections';
 import type { PostgresDatabase } from '../db/client';
 import { ModelClient } from '../models/client';
-import { BreakdownError } from './errors';
+import { BreakdownError, PaidModelExecutionError, type PaidModelCallState } from './errors';
 import type { PlanRevisionRecord } from './plan';
 import type { BreakdownService } from './service';
 import { canonicalJsonSha256 } from './service';
@@ -12,7 +13,7 @@ import type { SourceRef } from './source-index';
 import { runPiJsonAgent } from './pi-json';
 
 export const STORYBOARD_PROMPT_VERSION = 'storyboard-design/1';
-export const STORYBOARD_VALIDATOR_VERSION = 'storyboard-validator/1';
+export const STORYBOARD_VALIDATOR_VERSION = 'storyboard-validator/2';
 
 const refSchema = Type.Object({ scriptVersionId: Type.String(), start: Type.Integer({ minimum: 0 }),
   end: Type.Integer({ minimum: 1 }), quote: Type.String({ minLength: 1 }) }, { additionalProperties: false });
@@ -56,12 +57,20 @@ export function validateStoryboardOutput(value: unknown, plan: PlanRevisionRecor
   const raw = value as RawStoryboard;
   const scenes = new Map(plan.content.scenes.map(scene => [scene.id, scene]));
   const dialogues = new Map(plan.content.dialogues.map(dialogue => [dialogue.id, dialogue]));
+  // The adopted plan already orders dialogue by scene.order and source position within each scene.
+  const dialogueOrder = new Map(plan.content.dialogues.map((dialogue, index) => [dialogue.id, index]));
   const seenDialogues = new Set<string>();
   const counters = new Map<string, number>();
   const shots: StoryboardShot[] = [];
+  let previousSceneOrder = 0;
+  let previousDialogueOrder = -1;
   for (const shot of raw.shots) {
     const scene = scenes.get(shot.sceneId);
     if (!scene) throw new BreakdownError(422, 'STORYBOARD_SCENE_UNKNOWN', '分镜引用了不存在的场次。');
+    if (scene.order < previousSceneOrder) {
+      throw new BreakdownError(422, 'STORYBOARD_SCENE_ORDER_INVALID', '镜头必须按已采用的场次顺序排列，不得倒序或交错场次。');
+    }
+    previousSceneOrder = scene.order;
     const expected = (counters.get(scene.id) ?? 0) + 1;
     if (shot.order !== expected) throw new BreakdownError(422, 'STORYBOARD_ORDER_INVALID', '每场镜头需从 1 开始连续编号。');
     counters.set(scene.id, expected);
@@ -74,11 +83,16 @@ export function validateStoryboardOutput(value: unknown, plan: PlanRevisionRecor
       if (!dialogue || dialogue.sceneId !== scene.id || seenDialogues.has(id)) {
         throw new BreakdownError(422, 'STORYBOARD_DIALOGUE_INVALID', '对白绑定错误或重复。');
       }
+      const currentDialogueOrder = dialogueOrder.get(id)!;
+      if (currentDialogueOrder <= previousDialogueOrder) {
+        throw new BreakdownError(422, 'STORYBOARD_DIALOGUE_ORDER_INVALID', '对白必须按已采用事实的原文顺序播放，镜头之间和镜头内均不得倒置。');
+      }
       if (!shot.sourceRefs.some(ref => sameRef(ref, dialogue.sourceRef)
         || (ref.start <= dialogue.sourceRef.start && ref.end >= dialogue.sourceRef.end))) {
         throw new BreakdownError(422, 'STORYBOARD_DIALOGUE_SOURCE_MISSING', '绑定对白的镜头没有引用该段原文。');
       }
       seenDialogues.add(id);
+      previousDialogueOrder = currentDialogueOrder;
     }
     shots.push({ id: nextId(), sceneId: scene.id, order: shot.order,
       design: { origin: 'designSuggestion', visualDescription: shot.visualDescription.trim(),
@@ -104,13 +118,14 @@ interface StoryboardRow { id: string; project_id: string; script_version_id: str
   created_at: Date | string }
 
 export class StoryboardService {
-  private readonly model: ModelClient;
   constructor(private readonly database: PostgresDatabase, private readonly breakdown: BreakdownService,
-    private readonly config: AppConfig, transport: typeof fetch = fetch) {
-    this.model = new ModelClient(config, transport);
-  }
+    private readonly config: AppConfig, private readonly transport: typeof fetch = fetch) {}
 
-  async generate(projectId: string): Promise<StoryboardRevision> {
+  async generate(projectId: string, expectedModelConnectionRevision?: string): Promise<StoryboardRevision> {
+    const config = configForRole(this.config, 'general');
+    assertModelSelection(config, expectedModelConnectionRevision);
+    const model = new ModelClient(config, this.transport);
+    model.assertConfigured();
     const project = await this.breakdown.getProject(projectId);
     if (!project.activePlanRevisionId || !project.currentScriptVersionId) {
       throw new BreakdownError(409, 'ADOPTED_FACTS_REQUIRED', '请先采用当前剧本的事实拆解。');
@@ -131,16 +146,18 @@ export class StoryboardService {
     await this.database.query(`INSERT INTO storyboard_attempts
       (id, project_id, source_plan_revision_id, model, prompt_version, input_digest, status, created_at)
       VALUES ($1,$2,$3,$4,$5,$6,'running',now())`,
-    [attemptId, projectId, plan.id, this.config.defaultModel, STORYBOARD_PROMPT_VERSION, inputDigest]);
+    [attemptId, projectId, plan.id, config.defaultModel, STORYBOARD_PROMPT_VERSION, inputDigest]);
     let responseMeta: Awaited<ReturnType<ModelClient['call']>> | null = null;
+    let modelCallStarted = false;
     try {
       const raw = await runPiJsonAgent({ systemPrompt: SYSTEM_PROMPT,
         prompt: { operation: 'designStoryboard', context },
         invoke: async (systemPrompt, userContext) => {
-          const response = await this.model.call({ model: this.config.defaultModel,
+          modelCallStarted = true;
+          const response = await model.call({ model: config.defaultModel,
             messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userContext }],
-            ...(this.config.reasoningEffort !== 'model-default' ? { reasoningEffort: this.config.reasoningEffort } : {}),
-            maxOutputTokens: this.config.maxOutputTokens, allowPaid: true });
+            ...(config.reasoningEffort !== 'model-default' ? { reasoningEffort: config.reasoningEffort } : {}),
+            maxOutputTokens: config.maxOutputTokens, allowPaid: true });
           responseMeta = response;
           if (response.status !== 'completed') throw new BreakdownError(422, 'STORYBOARD_OUTPUT_INCOMPLETE', '模型分镜输出被截断。');
           try { return JSON.parse(response.text.trim()); }
@@ -167,7 +184,7 @@ export class StoryboardService {
           VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11::jsonb,now()) RETURNING *`,
         [revisionId, projectId, plan.scriptVersionId, plan.id, attemptId,
           JSON.stringify({ shots, validatorVersion: STORYBOARD_VALIDATOR_VERSION }), inputDigest,
-          STORYBOARD_PROMPT_VERSION, this.config.defaultModel, response.providerRequestId, JSON.stringify(response.usage)]);
+          STORYBOARD_PROMPT_VERSION, config.defaultModel, response.providerRequestId, JSON.stringify(response.usage)]);
         return toStoryboard(result.rows[0]!);
       });
     } catch (error) {
@@ -177,8 +194,11 @@ export class StoryboardService {
         provider_request_id=$3, usage_json=$4::jsonb, ended_at=now() WHERE id=$1 AND status='running'`,
       [attemptId, code, failedResponse?.providerRequestId ?? null,
         failedResponse ? JSON.stringify(failedResponse.usage) : null]);
-      if (error instanceof BreakdownError) throw error;
-      throw new BreakdownError(502, code, '分镜生成失败，请检查本机模型代理；不会自动重试。');
+      const paidModelCallState: PaidModelCallState = failedResponse ? 'confirmed' : modelCallStarted ? 'unknown' : 'none';
+      if (error instanceof BreakdownError) {
+        throw new PaidModelExecutionError(error.status, error.code, error.message, paidModelCallState);
+      }
+      throw new PaidModelExecutionError(502, code, '分镜生成失败，请检查本机模型代理；不会自动重试。', paidModelCallState);
     }
   }
 
@@ -195,7 +215,28 @@ export class StoryboardService {
     return toStoryboard(result.rows[0]);
   }
 
-  async adopt(projectId: string, revisionId: string, expectedActiveStoryboardRevisionId: string | null) {
+  async adopt(projectId: string, revisionId: string, expectedActiveStoryboardRevisionId: string | null,
+    actor: 'user' | 'agent' = 'user') {
+    if (actor !== 'user' && actor !== 'agent') {
+      throw new BreakdownError(400, 'STORYBOARD_ADOPTION_ACTOR_INVALID', '采用操作者类型无效。');
+    }
+    // Revisions are immutable: validate before acquiring a transaction connection.
+    // getPlanRevision reads through the pool and must not run while holding another connection.
+    const candidate = await this.database.query<StoryboardRow>(
+      'SELECT * FROM storyboard_revisions WHERE id=$1 AND project_id=$2', [revisionId, projectId]);
+    const checkedRow = candidate.rows[0];
+    if (checkedRow) {
+      // Older revisions remain readable, but adoption must satisfy today's rules too.
+      // Validate without rewriting history or allocating replacement shot IDs.
+      const storyboard = toStoryboard(checkedRow);
+      const plan = await this.breakdown.getPlanRevision(checkedRow.source_plan_revision_id);
+      let shotIndex = 0;
+      validateStoryboardOutput({ shots: storyboard.shots.map(shot => ({
+        sceneId: shot.sceneId, order: shot.order, visualDescription: shot.design.visualDescription,
+        shotSize: shot.design.shotSize, cameraMovement: shot.design.cameraMovement,
+        durationMs: shot.design.durationMs, sourceRefs: shot.sourceRefs, dialogueIds: shot.dialogueIds,
+      })) }, plan, () => storyboard.shots[shotIndex++]!.id);
+    }
     return this.database.transaction(async client => {
       const result = await client.query<{ current_script_version_id: string | null; active_plan_revision_id: string | null;
         active_storyboard_revision_id: string | null }>(
@@ -208,25 +249,28 @@ export class StoryboardService {
       const target = await client.query<StoryboardRow>(
         'SELECT * FROM storyboard_revisions WHERE id=$1 AND project_id=$2', [revisionId, projectId]);
       const row = target.rows[0];
-      if (!row || row.script_version_id !== project.current_script_version_id
+      if (!checkedRow || !row || row.script_version_id !== checkedRow.script_version_id
+        || row.source_plan_revision_id !== checkedRow.source_plan_revision_id
+        || row.script_version_id !== project.current_script_version_id
         || row.source_plan_revision_id !== project.active_plan_revision_id) {
         throw new BreakdownError(409, 'STORYBOARD_NOT_ADOPTABLE', '分镜版本与当前剧本或事实拆解不一致。');
       }
       const adoptionId = `sbadopt_${randomUUID().replaceAll('-', '')}`;
       await client.query(`INSERT INTO storyboard_adoptions
         (id,project_id,from_revision_id,to_revision_id,source_plan_revision_id,actor,created_at)
-        VALUES ($1,$2,$3,$4,$5,'user',now())`,
-      [adoptionId, projectId, project.active_storyboard_revision_id, revisionId, row.source_plan_revision_id]);
+        VALUES ($1,$2,$3,$4,$5,$6,now())`,
+      [adoptionId, projectId, project.active_storyboard_revision_id, revisionId, row.source_plan_revision_id, actor]);
       await client.query('UPDATE projects SET active_storyboard_revision_id=$1 WHERE id=$2', [revisionId, projectId]);
       return { id: adoptionId, projectId, fromRevisionId: project.active_storyboard_revision_id,
-        toRevisionId: revisionId, actor: 'user' as const };
+        toRevisionId: revisionId, actor };
     });
   }
 }
 
 function toStoryboard(row: StoryboardRow): StoryboardRevision {
   const content = row.content_json as { shots: StoryboardShot[]; validatorVersion: string };
-  if (!content || !Array.isArray(content.shots) || content.validatorVersion !== STORYBOARD_VALIDATOR_VERSION) {
+  if (!content || !Array.isArray(content.shots)
+    || !['storyboard-validator/1', STORYBOARD_VALIDATOR_VERSION].includes(content.validatorVersion)) {
     throw new BreakdownError(500, 'STORYBOARD_STORED_INVALID', '已保存的分镜版本格式不受支持。');
   }
   return { id: row.id, projectId: row.project_id, scriptVersionId: row.script_version_id,

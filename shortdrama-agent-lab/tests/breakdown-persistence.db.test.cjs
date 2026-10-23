@@ -13,15 +13,16 @@ if (!process.env.DATABASE_URL) {
   const { ExtractFactsStageRunner, SingleModelCallExtractFactsExecutor } = require('../dist/breakdown/execution');
   const { StoryboardService } = require('../dist/breakdown/storyboard');
   const { reconstructSource } = require('../dist/breakdown/source-index');
+  const modelConfig = readConfig({ LLM_BASE_URL: 'https://model.test/openai', LLM_API_KEY: 'test-only-api-key' });
 
-  test('PostgreSQL persists fact checks, adoption, storyboard revisions, and the execution ledger', async () => {
+  test('PostgreSQL persists fact checks, entity edits, adoption, storyboard revisions, and the execution ledger', async () => {
     const database = new PostgresDatabase(readDatabaseConfig());
     let projectId;
     try {
       await database.verifyConnection();
-      assert.equal(await database.hasMigrations(['001', '002', '003', '004', '005', '006']), true, 'Run npm run db:migrate before test:db.');
+      assert.equal(await database.hasMigrations(['001', '002', '003', '004', '005', '006', '007']), true, 'Run npm run db:migrate before test:db.');
       const repository = new PostgresBreakdownRepository(database);
-      const service = new BreakdownService(repository, readConfig({}));
+      const service = new BreakdownService(repository, modelConfig);
       const source = { url: 'https://www.qidian.com/chapter/1049358005/906767983/' };
       const project = await service.createProject({ title: `db-test-${randomUUID()}`, source });
       projectId = project.id;
@@ -72,9 +73,13 @@ if (!process.env.DATABASE_URL) {
       assert.equal(adopted.toRevisionId, plan.id);
       assert.equal((await service.getProject(project.id)).activePlanRevisionId, plan.id);
 
-      const storyboard = new StoryboardService(database, service, readConfig({}), async (_url, request) => {
+      const storyboard = new StoryboardService(database, service, modelConfig, async (url, request) => {
         const submitted = JSON.parse(request.body);
-        assert.equal(submitted.model, 'gpt-5.6-terra');
+        assert.equal(url, 'https://model.test/openai/chat/completions');
+        assert.equal(request.headers['api-key'], 'test-only-api-key');
+        assert.equal(submitted.model, 'deepseek-v4.1-flash-1017');
+        assert.equal(submitted.stream, false);
+        assert.equal(Object.hasOwn(submitted, 'reasoning_effort'), false);
         return new Response(JSON.stringify({
           id: 'db-storyboard-fake', model: submitted.model, finish_reason: 'stop',
           choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ shots: [
@@ -93,6 +98,65 @@ if (!process.env.DATABASE_URL) {
       assert.equal((await storyboard.list(project.id))[0].id, board.id);
       await storyboard.adopt(project.id, board.id, null);
       assert.equal((await service.getProject(project.id)).activeStoryboardRevisionId, board.id);
+
+      // Historical snapshots are retained, not rewritten to look like MAAS calls.
+      const legacyModelConfig = { provider: 'local-proxy', model: 'gpt-5.6-terra', reasoningEffort: 'medium' };
+      await database.query('UPDATE breakdown_runs SET model_config_json = $2::jsonb WHERE id = $1', [run.id, JSON.stringify(legacyModelConfig)]);
+      assert.deepEqual((await service.getRun(run.id)).modelConfig, legacyModelConfig);
+      let legacyCalls = 0;
+      const legacyRunner = new ExtractFactsStageRunner(repository, service, new SingleModelCallExtractFactsExecutor(), {
+        async call() { legacyCalls++; throw new Error('historical provider must never run'); },
+      });
+      await assert.rejects(legacyRunner.run(run.id), error => error.status === 409 && error.code === 'MODEL_CONFIGURATION_CHANGED');
+      const legacyAttempts = await database.query('SELECT COUNT(*)::int AS count FROM breakdown_attempts WHERE task_id = $1', [run.task.id]);
+      assert.equal(legacyAttempts.rows[0].count, 0);
+      assert.equal(legacyCalls, 0);
+
+      const originalPlan = structuredClone(await service.getPlanRevision(plan.id));
+      const editRequest = (name) => ({
+        expectedActivePlanRevisionId: plan.id,
+        edits: [{
+          kind: 'character', entityId: plan.content.characters[0].id,
+          name, aliases: ['小晚'], description: '人工确认的人物说明。',
+        }],
+      });
+      const edits = await Promise.allSettled([
+        service.createEntityEditCandidate(plan.id, editRequest('林晚（人工校对）')),
+        service.createEntityEditCandidate(plan.id, editRequest('另一个页面的校对')),
+      ]);
+      assert.equal(edits.filter((result) => result.status === 'fulfilled').length, 1, 'the project lock must reject a stale concurrent save');
+      assert.equal(edits.find((result) => result.status === 'rejected').reason.status, 409);
+      const manualPlan = edits.find((result) => result.status === 'fulfilled').value;
+      const refreshedService = new BreakdownService(new PostgresBreakdownRepository(database), modelConfig);
+      const persistedManual = await refreshedService.getPlanRevision(manualPlan.id);
+      assert.deepEqual(persistedManual, manualPlan);
+      assert.equal(persistedManual.createdBy, 'user');
+      assert.equal(persistedManual.reason, 'manualEdit');
+      assert.equal(persistedManual.parentRevisionId, plan.id);
+      assert.equal(persistedManual.content.characters[0].id, plan.content.characters[0].id);
+      assert.equal(persistedManual.content.characters[0].name.origin, 'user');
+      assert.deepEqual(persistedManual.content.characters[0].sourceRefs, plan.content.characters[0].sourceRefs);
+      assert.deepEqual(persistedManual.content.dialogues, plan.content.dialogues);
+      assert.deepEqual(persistedManual.content.scenes, plan.content.scenes);
+      assert.ok(persistedManual.content.manualLocks.some((lock) => lock.targetId === plan.content.characters[0].id && lock.introducedInRevisionId === manualPlan.id));
+      assert.deepEqual(await refreshedService.getPlanRevision(plan.id), originalPlan);
+      assert.deepEqual(await refreshedService.listPlanChecks(manualPlan.id), []);
+      assert.equal((await refreshedService.getProject(project.id)).activePlanRevisionId, plan.id, 'saving a manual candidate does not adopt it');
+      assert.equal((await refreshedService.listProjectPlanRevisions(project.id)).at(-1).id, manualPlan.id);
+      await assert.rejects(refreshedService.adoptPlan(project.id, {
+        planRevisionId: plan.id, checkId: inspected.check.id, expectedActivePlanRevisionId: plan.id,
+      }), (error) => error.status === 409, 'old snapshots cannot overwrite newer manual work');
+      await assert.rejects(refreshedService.adoptPlan(project.id, {
+        planRevisionId: manualPlan.id, checkId: inspected.check.id, expectedActivePlanRevisionId: plan.id,
+      }), (error) => error.status === 409, 'a previous revision check is not reusable');
+      const manualCheck = await refreshedService.checkPlan(manualPlan.id);
+      assert.equal(manualCheck.check.result, 'passed');
+      await refreshedService.adoptPlan(project.id, {
+        planRevisionId: manualPlan.id, checkId: manualCheck.check.id, expectedActivePlanRevisionId: plan.id,
+      });
+      const manuallyAdopted = await refreshedService.getProject(project.id);
+      assert.equal(manuallyAdopted.activePlanRevisionId, manualPlan.id);
+      assert.equal(manuallyAdopted.activeStoryboardRevisionId, null, 'the adopted board is based on the previous fact revision');
 
       const executionRun = await service.createDraftRun(project.id, {
         maxModelCalls: 1, maxOutputTokens: 4096, requirements: { language: '中文' },

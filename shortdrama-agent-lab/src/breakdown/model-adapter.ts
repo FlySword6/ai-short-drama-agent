@@ -1,14 +1,28 @@
 import type { AppConfig } from "../config";
 import { ModelClient } from "../models/client";
+import { configForRole } from "../models/connections";
+import type { ResolvedModelConfig } from "./repository";
 import { BreakdownError } from "./errors";
 import type { StageModelAdapter } from "./execution";
 
-export class LocalProxyStageModelAdapter implements StageModelAdapter {
+export class MaasStageModelAdapter implements StageModelAdapter {
   private readonly client: ModelClient;
 
-  constructor(config: AppConfig, transport: typeof fetch = fetch) {
+  constructor(private readonly config: AppConfig, private readonly transport: typeof fetch = fetch) {
     this.client = new ModelClient(config, transport);
   }
+
+  forRun(input: ResolvedModelConfig): StageModelAdapter {
+    const config = configForRole(this.config, 'breakdown');
+    if (input.model !== config.defaultModel || input.provider !== config.provider || input.reasoningEffort !== config.reasoningEffort
+      || (input.connectionRevision ? input.connectionRevision !== config.connectionRevision
+        : config.connectionRevision && config.connectionRevision !== 'environment-v1')) {
+      throw new BreakdownError(409, 'MODEL_CONFIGURATION_CHANGED', '拆解模型连接已修改，请新建 Run；历史结果仍可校对。');
+    }
+    return new MaasStageModelAdapter(config, this.transport);
+  }
+
+  assertConfigured(): void { this.client.assertConfigured(); }
 
   async call(input: Parameters<StageModelAdapter["call"]>[0]) {
     const payload = input.payload as Record<string, unknown>;
@@ -23,7 +37,7 @@ export class LocalProxyStageModelAdapter implements StageModelAdapter {
     const result = await this.client.call({
       model: input.model,
       messages: [{ role: "system", content: payload.systemPrompt }, messages[0]],
-      reasoningEffort: input.reasoningEffort,
+      ...(input.reasoningEffort !== "model-default" ? { reasoningEffort: input.reasoningEffort } : {}),
       maxOutputTokens: input.maxOutputTokens,
       allowPaid: true,
     });
