@@ -1,31 +1,31 @@
-# OHAO 演示媒体
+# Story Studio 演示媒体
 
-这些媒体用于仓库首页和项目说明，记录 2026-10-23 的 OHAO 工作台界面与已实现的整集自动制作总控。
+这些媒体用于仓库首页和项目说明，记录 2026-10-26 更名后的 Story Studio 工作台界面与已实现的整集自动制作总控。
 
 ## 当前截图
 
 | 文件 | 尺寸 | 内容 |
 | --- | --- | --- |
-| [home.png](home.png) | 1440 × 900 | OHAO 首页、快捷入口、最近项目与创作参考。 |
-| [projects.png](projects.png) | 1440 × 900 | 简洁的项目目录、搜索筛选与网格卡片。 |
-| [assets.png](assets.png) | 1440 × 900 | 个人资产库、分类导航和新建资产入口。 |
-| [plugins.png](plugins.png) | 1440 × 900 | 内置插件与创作工具目录。 |
-| [automation.png](automation.png) | 1440 × 1024 | 整集自动制作的新建运行页面，展示策略、候选数、3D、预算与付费授权。 |
-| [automation-tour.png](automation-tour.png) | 1440 × 900 | 自动制作流程概览与各节点联动说明。 |
+| [home.png](home.png) | 1265 × 712 | Story Studio 首页、快捷入口、最近项目与创作参考。 |
+| [projects.png](projects.png) | 1280 × 720 | 简洁的项目目录、搜索筛选与网格卡片。 |
+| [assets.png](assets.png) | 1280 × 720 | 个人资产库、分类导航和新建资产入口。 |
+| [plugins.png](plugins.png) | 1265 × 712 | 内置插件与创作工具目录。 |
+| [automation.png](automation.png) | 1264 × 1002 | 整集自动制作的新建运行页面，展示策略、候选数、3D、预算与付费授权。 |
+| [automation-tour.png](automation-tour.png) | 1265 × 712 | 自动制作流程概览与各节点联动说明。 |
 
-旧的 [workspace.png](workspace.png) 和 [director.png](director.png) 是 1440 × 960 的 FRAME 历史界面截图，仅用于版本记录，不作为当前 OHAO 界面展示。
+旧的 [workspace.png](workspace.png) 和 [director.png](director.png) 是 1440 × 960 的 FRAME 历史界面截图，仅用于版本记录，不作为当前 Story Studio 界面展示。
 
 ## 产品导览
 
 | 文件 | 新版规格 | 说明 |
 | --- | --- | --- |
-| [product-tour.gif](product-tour.gif) | 960 × 600，约 6 fps，约 14 秒 | 仓库首页内嵌预览。 |
-| [product-tour.mp4](product-tour.mp4) | 1440 × 900，约 14 秒，H.264，无音轨 | 可下载的清晰版本。 |
+| [product-tour.gif](product-tour.gif) | 960 × 540，6 fps，14 秒 | 仓库首页内嵌预览。 |
+| [product-tour.mp4](product-tour.mp4) | 1280 × 720，14 秒，H.264，无音轨 | 可下载的清晰版本。 |
 
 新版导览依次展示自动制作、首页、项目、资产和插件，并在最后一页停留片刻。自动制作画面突出核心链路：剧本拆解、资产复用或补齐、分镜、按需 3D、视频候选、技术复核、有限返修、FFmpeg 合片和交付。导览只记录真实界面，不用动画假装供应商任务已经完成，也不展示虚构成片。
 
-录制日期：2026-10-23。截图和导览使用本地开发环境，不包含密钥、账号、个人文件路径或供应商原始响应；录制过程未创建真实付费任务，也未调用付费模型。
+更新日期：2026-10-26。截图来自更名后的真实本地前端；拍摄时后端与数据库未运行，因此项目、资产和制作列表保留实际的未连接提示，未使用模拟成功数据。截图和导览不包含密钥、账号、个人文件路径或供应商原始响应；录制过程未创建真实付费任务，也未调用付费模型。
 
 自动制作中的“技术复核”验证容器与哈希，检查画幅、时长和音轨，并读取分辨率参与候选评分；它不代表人物一致性、剧情、表演或审美通过。3D 生产约束当前是 prompt-only；镜头音频来自视频供应商原生音轨，尚无独立配音、配乐、音效、口型和字幕生产子图。
 
-界面、能力边界和媒体来源说明见[前端 README](../../web/README.md)、[全流程自动制片实现](../OHAO全流程自动制片实现-v0.1.md)与[第三方代码说明](../../web/THIRD_PARTY_NOTICES.md)。
+界面、能力边界和媒体来源说明见[前端 README](../../web/README.md)、[全流程自动制片实现](../Story-Studio全流程自动制片实现-v0.1.md)与[第三方代码说明](../../web/THIRD_PARTY_NOTICES.md)。

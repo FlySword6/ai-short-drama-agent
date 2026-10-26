@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1>OHAO</h1>
+<h1>Story Studio</h1>
 
 <p><strong>把一集剧本，推进成一条看得见、停得住、接得回的自动制片流程。</strong></p>
 
@@ -17,7 +17,7 @@
 
 <p>
   <a href="#核心亮点整集自动制片">自动制片</a> ·
-  <a href="#全新-ohao-工作台">界面预览</a> ·
+  <a href="#全新-story-studio-工作台">界面预览</a> ·
   <a href="#快速开始">快速开始</a> ·
   <a href="#当前能力与边界">能力边界</a> ·
   <a href="#文档导航">文档导航</a>
@@ -25,9 +25,9 @@
 
 </div>
 
-![OHAO 自动制作总控：创建整集运行并查看完整生产计划](docs/media/automation.png)
+![Story Studio 自动制作总控：创建整集运行并查看完整生产计划](docs/media/automation.png)
 
-OHAO 已经不只是一个单镜头生成页面。它围绕**一集短剧**建立持久化生产运行，从一次创建开始，把剧本拆解、资产准备、分镜设计、3D 预演、多候选视频、技术复核、局部返修、时间线合成和最终交付接成一条链。每个任务都有真实状态和输入来源；缺少模型、资产、预算或可靠结果时，流程会明确停下，等待处理后从原位置继续。
+Story Studio 已经不只是一个单镜头生成页面。它围绕**一集短剧**建立持久化生产运行，从一次创建开始，把剧本拆解、资产准备、分镜设计、3D 预演、多候选视频、技术复核、局部返修、时间线合成和最终交付接成一条链。每个任务都有真实状态和输入来源；缺少模型、资产、预算或可靠结果时，流程会明确停下，等待处理后从原位置继续。
 
 > 当前是 **Early Preview**。整集生产总控、运行恢复和本地媒体链已经实现；真实模型与媒体生成取决于本机连接配置，并且只会在用户对本次运行明确授权预算后调用。当前自动复核验证容器与哈希，检查画幅、时长和音轨，并读取分辨率参与候选评分；它不代表人物、动作、剧情或审美已经通过语义审核。
 
@@ -35,7 +35,7 @@ OHAO 已经不只是一个单镜头生成页面。它围绕**一集短剧**建�
 
 ### 一键创建，后续步骤自动联动
 
-选择项目和已保存的剧本版本，设置画幅、目标时长、视觉风格、质量档位、每镜候选数、3D 策略和预算，即可创建一条可恢复的整集生产运行。OHAO 会冻结本次输入，沿依赖图继续执行，而不是把彼此孤立的“生成按钮”堆在同一个页面。
+选择项目和已保存的剧本版本，设置画幅、目标时长、视觉风格、质量档位、每镜候选数、3D 策略和预算，即可创建一条可恢复的整集生产运行。Story Studio 会冻结本次输入，沿依赖图继续执行，而不是把彼此孤立的“生成按钮”堆在同一个页面。
 
 后端和运行详情使用十阶段 DAG；创建页把内部预检收进创建动作，并用九个创作者视角的步骤预览后续流程：
 
@@ -70,28 +70,28 @@ OHAO 已经不只是一个单镜头生成页面。它围绕**一集短剧**建�
 - **最小范围返修**：镜头复核失败后，只失效受影响的“视频 → 抽卡 → 复核 → 合片”下游，并把失败项带入新的生成提示。
 - **本地可信交付**：远程视频必须先安全下载、计算 SHA-256 并经 `ffprobe` 校验，合片只读取受控本地媒体 ID。
 
-完整的状态机、媒体安全、预算语义与恢复规则见 [OHAO 全流程自动制片实现](docs/OHAO全流程自动制片实现-v0.1.md)。
+完整的状态机、媒体安全、预算语义与恢复规则见 [Story Studio 全流程自动制片实现](docs/Story-Studio全流程自动制片实现-v0.1.md)。
 
-## 全新 OHAO 工作台
+## 全新 Story Studio 工作台
 
 新版界面统一为克制的深色电影工作台：固定侧栏连接首页、项目、资产、插件与自动制作；内容区保持更大的留白和清晰的任务层级。首页负责进入创作，项目负责承载剧本，资产负责沉淀可复用素材，插件页集中展示生产工具，而自动制作页把这些能力编排为完整流程。
 
 | 首页 | 项目 |
 | --- | --- |
-| ![OHAO 首页：创作入口、最近项目与功能概览](docs/media/home.png) | ![OHAO 项目页：简洁的项目卡片与创建入口](docs/media/projects.png) |
+| ![Story Studio 首页：创作入口、最近项目与功能概览](docs/media/home.png) | ![Story Studio 项目页：简洁的项目卡片与创建入口](docs/media/projects.png) |
 
 | 资产 | 插件 |
 | --- | --- |
-| ![OHAO 资产页：人物、场景和道具素材管理](docs/media/assets.png) | ![OHAO 插件页：内置创作与生产工具](docs/media/plugins.png) |
+| ![Story Studio 资产页：人物、场景和道具素材管理](docs/media/assets.png) | ![Story Studio 插件页：内置创作与生产工具](docs/media/plugins.png) |
 
 **自动制作流程概览**
 
-![OHAO 自动制作创建页：整集生产链、运行策略与节点说明](docs/media/automation-tour.png)
+![Story Studio 自动制作创建页：整集生产链、运行策略与节点说明](docs/media/automation-tour.png)
 
 <details>
-<summary>查看当前 OHAO 界面导览</summary>
+<summary>查看当前 Story Studio 界面导览</summary>
 
-[![OHAO 当前产品界面导览](docs/media/product-tour.gif)](docs/media/product-tour.mp4?raw=true)
+[![Story Studio 当前产品界面导览](docs/media/product-tour.gif)](docs/media/product-tour.mp4?raw=true)
 
 <p align="center"><a href="docs/media/product-tour.mp4?raw=true">打开 / 下载 MP4 演示</a></p>
 
@@ -101,7 +101,7 @@ OHAO 已经不只是一个单镜头生成页面。它围绕**一集短剧**建�
 
 ## 创作依据与手工控制
 
-自动制片建立在可核对的原文、资产和采用记录上。除了整集总控，OHAO 仍保留适合逐步创作和校对的工作区。
+自动制片建立在可核对的原文、资产和采用记录上。除了整集总控，Story Studio 仍保留适合逐步创作和校对的工作区。
 
 ### 小说与剧本事实链
 
@@ -128,8 +128,8 @@ OHAO 已经不只是一个单镜头生成页面。它围绕**一集短剧**建�
 准备 **Node.js ≥ 22.19** 和 npm。只浏览首页、项目样式、资产、插件、示例工作台和 3D 导演台时，不需要数据库或模型账号。
 
 ```sh
-git clone https://github.com/K80Tom/frame-shortdrama-agent.git ohao
-cd ohao/shortdrama-agent-lab
+git clone https://github.com/FlySword6/ai-short-drama-agent.git story-studio
+cd story-studio/shortdrama-agent-lab
 npm --prefix web ci
 npm --prefix web run dev
 ```
@@ -175,7 +175,7 @@ npm --prefix web run dev
 
 | 能力 | 当前状态 |
 | --- | --- |
-| OHAO 产品界面 | 已实现首页、项目、资产、插件、工作台、自动制作和设置等统一导航与新版视觉。 |
+| Story Studio 产品界面 | 已实现首页、项目、资产、插件、工作台、自动制作和设置等统一导航与新版视觉。 |
 | 整集生产运行 | 已实现 PostgreSQL 持久化十阶段 DAG、镜头子图、幂等创建、CAS 更新、事务 outbox、预算、暂停/继续、重启恢复、外部任务对账、局部失效与重试。 |
 | 剧本与分镜 | 已实现原文索引、事实候选、依据核对、程序检查、人工/Agent 采用、分镜生成与镜头任务展开。 |
 | 资产联动 | 已实现人物、场景、道具的名称/别名匹配、同级歧义阻断、缺失图片生成、本地导入和镜头有序参考图绑定。 |
@@ -199,7 +199,7 @@ npm --prefix web run dev
 
 ```mermaid
 flowchart LR
-    UI["OHAO React 工作台<br/>项目 · 资产 · 自动制作"] --> API["NestJS + Fastify<br/>本机 API"]
+    UI["Story Studio React 工作台<br/>项目 · 资产 · 自动制作"] --> API["NestJS + Fastify<br/>本机 API"]
     API --> DB[("PostgreSQL<br/>计划 · 任务 · 预算 · 决定")]
     API --> ORCH["整集生产总控<br/>十阶段 DAG · 恢复 · 门禁"]
     ORCH --> TEXT["Pi Agent Core<br/>拆解 · 分镜"]
@@ -240,7 +240,7 @@ npm run test:db
 
 ## 路线图
 
-- [x] 统一的 OHAO 首页、项目、资产、插件、工作台与设置界面。
+- [x] 统一的 Story Studio 首页、项目、资产、插件、工作台与设置界面。
 - [x] 原文索引、项目持久化、受控文字阶段、确定性检查与候选采用。
 - [x] 人物、场景和道具资产库，以及待补图片的生成、导入与人工采用。
 - [x] 浏览器内手工 3D 白模与规则式镜头预演。
@@ -258,8 +258,8 @@ npm run test:db
 
 | 想了解什么 | 从这里开始 |
 | --- | --- |
-| 整集自动制作、恢复、预算、媒体链与边界 | [全流程自动制片实现](docs/OHAO全流程自动制片实现-v0.1.md) |
-| 自动制片的产品构思与长期方向 | [全流程自动制片构思](docs/OHAO全流程自动制片构思-v0.1.md) |
+| 整集自动制作、恢复、预算、媒体链与边界 | [全流程自动制片实现](docs/Story-Studio全流程自动制片实现-v0.1.md) |
+| 自动制片的产品构思与长期方向 | [全流程自动制片构思](docs/Story-Studio全流程自动制片构思-v0.1.md) |
 | 产品目标、创作边界与里程碑 | [总体设计](docs/总体设计.md) |
 | 已实现架构与后续设计 | [技术架构](docs/技术架构.md) |
 | 数据契约、运行聚合与版本 | [数据结构 v0.1](docs/数据结构-v0.1.md) |
@@ -269,12 +269,13 @@ npm run test:db
 | 独立单镜头视频工具 | [单条视频自动化](docs/单条视频自动化.md) |
 | 小说事实与资产链 | [小说逐章拆解](docs/小说逐章拆解.md) · [小说资产引用](docs/小说资产引用.md) |
 | 当前文字链路与 API | [首个里程碑实现](docs/首个里程碑实现.md) |
+| 简历项目经历与评测数据口径 | [Story Studio 项目经历](docs/简历项目经历.md) |
 | 深入查看阶段实现 | [持久化](docs/持久化-P0.2.md) · [事实候选](docs/候选计划-P0.3.md) · [受控阶段执行](docs/受控阶段执行-P0.4.md) |
 | 示例、来源与开发约定 | [示例说明](examples/README.md) · [AGENTS.md](AGENTS.md) · [第三方说明](web/THIRD_PARTY_NOTICES.md) |
 
 ## 仓库中的其他目录
 
-**本项目的产品入口与开发真源是 `shortdrama-agent-lab/`。** 仓库中的同级目录只用于历史阅读和方法参考，不是 OHAO 的启动依赖：
+**本项目的产品入口与开发真源是 `shortdrama-agent-lab/`。** 仓库中的同级目录只用于历史阅读和方法参考，不是 Story Studio 的启动依赖：
 
 | 路径 | 用途 |
 | --- | --- |
@@ -284,7 +285,7 @@ npm run test:db
 | `../zhongwen-shortdrama-agent` | 空占位文件，不是可运行项目。 |
 | 根目录《短剧智能体-源码分析与 MVP 建议》 | 历史调研；当前产品与技术说明以本项目 `docs/` 为准。 |
 
-使用 OHAO 无需安装或运行上述参考项目，也不依赖旧平台的 Main API、数据库、账号或部署配置。
+使用 Story Studio 无需安装或运行上述参考项目，也不依赖旧平台的 Main API、数据库、账号或部署配置。
 
 ## 来源与许可
 
@@ -296,5 +297,5 @@ npm run test:db
 
 <div align="center">
   <p><strong>让一条自动化流程，保留每一个可追溯的创作决定。</strong></p>
-  <p><a href="#快速开始">本地体验 OHAO</a> · <a href="https://github.com/K80Tom/frame-shortdrama-agent/issues">反馈问题与想法</a></p>
+  <p><a href="#快速开始">本地体验 Story Studio</a> · <a href="https://github.com/K80Tom/frame-shortdrama-agent/issues">反馈问题与想法</a></p>
 </div>

@@ -8,8 +8,8 @@ if (process.platform !== 'darwin') {
   process.exit(1);
 }
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const bundle = path.join(root, 'outputs/private/desktop-helper/OHAO Desktop Bridge.app');
-const executable = path.join(bundle, 'Contents/MacOS/OHAODesktopBridge');
+const bundle = path.join(root, 'outputs/private/desktop-helper/Story Studio Desktop Bridge.app');
+const executable = path.join(bundle, 'Contents/MacOS/StoryStudioDesktopBridge');
 await mkdir(path.dirname(executable), { recursive: true, mode: 0o700 });
 await copyFile(path.join(root, 'desktop-helper/Info.plist'), path.join(bundle, 'Contents/Info.plist'));
 const compilation = spawnSync('/usr/bin/xcrun', ['swiftc', '-O', '-swift-version', '5',
@@ -22,4 +22,4 @@ if (compilation.error || compilation.status !== 0) process.exit(compilation.stat
 // entry. This does not grant permissions, notarize, or install a certificate.
 const signed = spawnSync('/usr/bin/codesign', ['--force', '--sign', '-', '--identifier', 'local.ohao.doubao-asset-bridge', bundle], { stdio: 'inherit' });
 if (signed.error || signed.status !== 0) process.exit(signed.status || 1);
-console.log('Built local OHAO Desktop Bridge. No desktop action or model request was performed.');
+console.log('Built local Story Studio Desktop Bridge. No desktop action or model request was performed.');

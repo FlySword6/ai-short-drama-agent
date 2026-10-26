@@ -3,7 +3,7 @@ import { Aperture, ArrowUpRight, Check, Info, X } from 'lucide-react';
 import SpotlightCard from './vendor/SpotlightCard';
 
 export function Brand() {
-  return <a className="brand" href="#/studio" aria-label="OHAO 创作首页"><span className="brand-symbol"><Aperture size={25} strokeWidth={1.6} /></span><strong>OHAO<span>STORY STUDIO</span></strong></a>;
+  return <a className="brand" href="#/studio" aria-label="Story Studio 创作首页"><span className="brand-symbol"><Aperture size={25} strokeWidth={1.6} /></span><strong>Story Studio<span>AI SHORT DRAMA</span></strong></a>;
 }
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
   return <SpotlightCard className={className} spotlightColor="rgba(244, 131, 84, 0.13)">{children}</SpotlightCard>;

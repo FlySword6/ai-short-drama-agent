@@ -28,7 +28,7 @@ func health() -> Never {
     var result: [String: Any] = ["available": installed && access, "installed": installed,
         "accessibilityTrusted": access,
         "code": !installed ? "DESKTOP_APP_NOT_INSTALLED" : (!access ? "DESKTOP_ACCESSIBILITY_REQUIRED" : "DESKTOP_READY"),
-        "message": !installed ? "未找到已安装的豆包工作客户端。" : (!access ? "请在 macOS 系统设置的辅助功能中允许 OHAO Desktop Bridge，然后重新检测。" : "桌面桥已就绪；生成时使用豆包工作现有账号和额度。")]
+        "message": !installed ? "未找到已安装的豆包工作客户端。" : (!access ? "请在 macOS 系统设置的辅助功能中允许 Story Studio Desktop Bridge，然后重新检测。" : "桌面桥已就绪；生成时使用豆包工作现有账号和额度。")]
     if let version = appVersion() { result["appVersion"] = version }
     respond(result)
 }
@@ -384,7 +384,7 @@ do {
         respond(["state": "unknown", "code": "DESKTOP_SUBMISSION_UNCERTAIN", "message": "已有提交标记，需核对原任务；不会重复生成。"])
     }
     guard existsApp() else { try fail("DESKTOP_APP_NOT_INSTALLED", "未找到已安装的豆包工作客户端。") }
-    guard trusted() else { try fail("DESKTOP_ACCESSIBILITY_REQUIRED", "请在 macOS 辅助功能中允许 OHAO Desktop Bridge 后重新检测；未提交生成。") }
+    guard trusted() else { try fail("DESKTOP_ACCESSIBILITY_REQUIRED", "请在 macOS 辅助功能中允许 Story Studio Desktop Bridge 后重新检测；未提交生成。") }
     let app = try targetApp()
     app.activate(options: [.activateAllWindows])
     RunLoop.current.run(until: Date().addingTimeInterval(0.3))

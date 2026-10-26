@@ -64,7 +64,7 @@ function CreatePanel({ form, projects, versions, loading, consent, onConsent, on
   return <div className="pa-create-layout">
     <section className="pa-create-card" aria-labelledby="pa-create-title">
       <div className="pa-card-head"><div><span>NEW PRODUCTION</span><h2 id="pa-create-title">创建一次完整制作</h2></div><WandSparkles size={20} /></div>
-      <p className="pa-card-intro">选择已经保存的剧本，OHAO 会建立可恢复的生产任务；模型未接入的环节会明确停下，不会伪造完成。</p>
+      <p className="pa-card-intro">选择已经保存的剧本，Story Studio 会建立可恢复的生产任务；模型未接入的环节会明确停下，不会伪造完成。</p>
       <div className="pa-form-grid">
         <label className="pa-wide"><span>项目</span><select aria-label="自动制作项目" value={form.projectId} disabled={loading} onChange={event => onProject(event.target.value)}><option value="">选择已有剧本项目</option>{projects.map(project => <option key={project.id} value={project.id}>{project.title}</option>)}</select></label>
         <label className="pa-wide"><span>剧本版本</span><select aria-label="自动制作剧本版本" value={form.scriptVersionId} disabled={loading || !form.projectId} onChange={event => onChange({ scriptVersionId: event.target.value })}><option value="">{form.projectId ? '选择剧本版本' : '请先选择项目'}</option>{versions.map(version => <option key={version.id} value={version.id}>版本 {version.version}{version.id === projects.find(project => project.id === form.projectId)?.currentScriptVersionId ? ' · 当前' : ''}</option>)}</select></label>
@@ -231,7 +231,7 @@ export default function ProductionAutomationPage({ onUnsavedChange }: { onUnsave
   }
 
   return <div className="pa-page">
-    {isCreate && <header className="pa-page-head"><div><span className="pa-head-icon"><Sparkles size={20} /></span><div><h1>自动制作</h1><p>把剧本交给 OHAO，完成一整条可见、可暂停、可返修的制作流程。</p></div></div><div><a href="#/automation/video"><Film size={14} />单镜头视频工具<ArrowUpRight size={12} /></a><a href="#/settings/models"><Settings2 size={14} />模型设置</a></div></header>}
+    {isCreate && <header className="pa-page-head"><div><span className="pa-head-icon"><Sparkles size={20} /></span><div><h1>自动制作</h1><p>把剧本交给 Story Studio，完成一整条可见、可暂停、可返修的制作流程。</p></div></div><div><a href="#/automation/video"><Film size={14} />单镜头视频工具<ArrowUpRight size={12} /></a><a href="#/settings/models"><Settings2 size={14} />模型设置</a></div></header>}
     {isCreate ? <CreatePanel form={form} projects={projects} versions={versions} loading={loading || busy === 'create' || Boolean(pendingClientId)} consent={consent} onConsent={setConsent} onChange={edit} onProject={selectProject} onSubmit={() => void create()} />
       : <RunDashboard run={run} runs={runs} projects={projects} selectedTaskId={selectedTaskId} busy={busy} onRun={id => { setCreating(false); setSelectedRunId(id); setSelectedTaskId(''); }} onTask={setSelectedTaskId} onAction={type => void action(type)} onResolve={resolve} onRetry={task => void retry(task)} onReview={(task, decision, candidate) => void review(task, decision, candidate)} />}
     {pendingClientId && <div className="pa-recovery" role="alert"><AlertCircle size={15} /><p>正在核对刚才的创建结果。暂不允许再次创建，避免重复启动一整条付费流水线。</p><button onClick={() => setRefresh(value => value + 1)}>重新读取</button><button onClick={() => { if (!window.confirm('只有确认后端没有这次运行时才应解除。确定解除待确认状态？')) return; try { sessionStorage.removeItem(pendingKey); } catch { /* no-op */ } setPendingClientId(''); setConsent(false); }}>确认未创建</button></div>}

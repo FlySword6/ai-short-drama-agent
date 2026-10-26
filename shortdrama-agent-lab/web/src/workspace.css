@@ -15,9 +15,9 @@
 ::selection { background: #d3f57b40; color: #fff; }
 .sidebar { width: 204px; padding: 28px 14px 16px; background: #141416; border-right-color: #ffffff0a; overflow-y: auto; scrollbar-width: thin; }
 .sidebar-brand { margin: 0 0 32px; }
-.brand { gap: 9px; padding: 0 10px; }
+.brand { gap: 8px; padding: 0 6px; min-width: 0; }
 .brand-symbol { width: 30px; height: 30px; background: transparent; color: #d3f57b; box-shadow: none; }
-.brand strong { font-size: 23px; font-weight: 750; letter-spacing: 2.2px; }
+.brand strong { font-size: 18px; font-weight: 750; letter-spacing: -.6px; white-space: nowrap; }
 .brand strong > span { font-size: 8px; letter-spacing: 1.2px; color: #82828c; margin-top: 5px; }
 .main-nav { gap: 5px; }
 .main-nav a { height: 41px; gap: 12px; padding: 0 13px; font-size: 12px; color: #9d9da6; border-radius: 7px; }

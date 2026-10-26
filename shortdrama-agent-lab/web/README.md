@@ -1,6 +1,6 @@
-# OHAO · STORY STUDIO
+# Story Studio
 
-OHAO 是面向中文短剧的本地创作与自动制片工作台。界面在 2026-10-22 至 2026-10-23 参考 Liblib 的信息组织方式完成重构：中性黑灰底色、荧绿强调、紧凑卡片和分组侧栏，并统一使用 **OHAO / STORY STUDIO** 品牌。
+Story Studio 是面向中文短剧的本地创作与自动制片工作台。界面在 2026-10-22 至 2026-10-23 参考 Liblib 的信息组织方式完成重构：中性黑灰底色、荧绿强调、紧凑卡片和分组侧栏，并统一使用 **Story Studio** 品牌。
 
 项目采用 React、TypeScript 和 Vite，使用 hash 路由。既有 `frame:*` 浏览器存储键与内部数据协议继续兼容。
 
@@ -44,7 +44,7 @@ OHAO 是面向中文短剧的本地创作与自动制片工作台。界面在 20
 
 | 链接 | 用途 |
 | --- | --- |
-| `#/studio` | OHAO 首页与创作入口。 |
+| `#/studio` | Story Studio 首页与创作入口。 |
 | `#/projects` | 剧本项目、小说原文与本地练习目录。 |
 | `#/assets` | 已登记的个人资产库。 |
 | `#/assets/references` | 资产工作区的示例参考页签。 |
@@ -144,4 +144,4 @@ npm --prefix web run dev
 - `src/ModelConnections.tsx` / `src/model-connections.ts`：按用途管理模型连接。
 - `src/director/`：浏览器 3D 白模导演台；来源见 [第三方代码说明](THIRD_PARTY_NOTICES.md)。
 
-整集实现、恢复策略、媒体安全链与详细边界见[全流程自动制片实现](../docs/OHAO全流程自动制片实现-v0.1.md)。旧的独立九步教学页面保留在 `../flow-explainer/`，不属于本次 OHAO 工作台视觉系统。
+整集实现、恢复策略、媒体安全链与详细边界见[全流程自动制片实现](../docs/Story-Studio全流程自动制片实现-v0.1.md)。旧的独立九步教学页面保留在 `../flow-explainer/`，不属于本次 Story Studio 工作台视觉系统。

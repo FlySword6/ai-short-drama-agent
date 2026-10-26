@@ -1,4 +1,4 @@
-# OHAO 全流程自动制片实现 v0.1
+# Story Studio 全流程自动制片实现 v0.1
 
 更新日期：2026-10-23
 
@@ -153,4 +153,4 @@ npm --prefix web test
 npm --prefix web run build
 ```
 
-概念背景和长期方向见 [OHAO 全流程自动制片构思](OHAO全流程自动制片构思-v0.1.md)。本文件只描述当前可由代码核对的实现与边界。
+概念背景和长期方向见 [Story Studio 全流程自动制片构思](Story-Studio全流程自动制片构思-v0.1.md)。本文件只描述当前可由代码核对的实现与边界。

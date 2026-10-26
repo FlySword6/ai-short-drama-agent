@@ -8,11 +8,11 @@
 node scripts/build-desktop-helper.mjs
 ```
 
-产物保存在 Git 忽略的 `outputs/private/desktop-helper/OHAO Desktop Bridge.app`。构建使用本地临时签名；不安装开机启动，不修改系统权限，不启动生成。首次使用需由用户在「系统设置 → 隐私与安全性 → 辅助功能」通过加号选中这个 `.app` 并允许。开发版虽然 bundle ID 固定，但 ad-hoc 签名的指定要求依赖代码哈希；重新构建可能让旧授权失效，即使系统开关仍显示开启。此时需用户明确授权，在系统设置移除旧条目、重新添加完全同一个 `.app`；仅关闭再开启不一定刷新旧签名记录。构建脚本不会自动修改授权、安装证书或削弱签名验证。
+产物保存在 Git 忽略的 `outputs/private/desktop-helper/Story Studio Desktop Bridge.app`。构建使用本地临时签名；不安装开机启动，不修改系统权限，不启动生成。首次使用需由用户在「系统设置 → 隐私与安全性 → 辅助功能」通过加号选中这个 `.app` 并允许。开发版虽然 bundle ID 固定，但 ad-hoc 签名的指定要求依赖代码哈希；重新构建可能让旧授权失效，即使系统开关仍显示开启。此时需用户明确授权，在系统设置移除旧条目、重新添加完全同一个 `.app`；仅关闭再开启不一定刷新旧签名记录。构建脚本不会自动修改授权、安装证书或削弱签名验证。
 
 ## 协议与边界
 
-后端通过 macOS LaunchServices（固定 `/usr/bin/open -n -g -W -a <本项目桥接app>`）启动已授权的 app，而不是从 Node 直接执行包内二进制。这样保持桌面权限归属于用户授权的 OHAO Desktop Bridge，不要求给 Node、Terminal 或 Codex 扩大权限。参数只有以下三种。JSON 通过 `outputs/private/desktop-bridge-ipc/` 下每次独立的 `0700` 临时目录与 `0600` stdin/stdout 文件传递，不把提示词放进命令行参数或日志；响应拒绝符号链接、硬链接和超过 16 KiB 的内容。
+后端通过 macOS LaunchServices（固定 `/usr/bin/open -n -g -W -a <本项目桥接app>`）启动已授权的 app，而不是从 Node 直接执行包内二进制。这样保持桌面权限归属于用户授权的 Story Studio Desktop Bridge，不要求给 Node、Terminal 或 Codex 扩大权限。参数只有以下三种。JSON 通过 `outputs/private/desktop-bridge-ipc/` 下每次独立的 `0700` 临时目录与 `0600` stdin/stdout 文件传递，不把提示词放进命令行参数或日志；响应拒绝符号链接、硬链接和超过 16 KiB 的内容。
 
 - `health`：只检查固定 app 安装信息与本进程 Accessibility 信任，不读取 UI、不弹系统权限请求。
 - `diagnose`：仅供明确发起的本机只读排障，不加入健康轮询。只观察固定豆包进程的现有窗口，输出白名单角色、任务 URL 类别、输入框文本长度、是否恰为已观察固定占位提示、字符计数、可设置性、选择/可见字符范围及子节点 title/description/value 的类别和长度。任务 WebArea 内所有可写文本区都会报告，即使不符合最终输入框锚点。最多报告 10 个窗口、每窗 3 个文本区、每文本区 5 个子节点；不输出用户文本、窗口标题、完整 URL 或任务 ID，不打开 app、不切换焦点、不修改输入、不申请权限。

@@ -85,7 +85,7 @@ export default function DirectorWorkspace({ notify }: { notify: (text: string) =
   }
 
   function exportScene() {
-    downloadBlob(new Blob([JSON.stringify(currentSnapshot(), null, 2)], { type: 'application/json' }), 'OHAO-可编辑白模场景.json');
+    downloadBlob(new Blob([JSON.stringify(currentSnapshot(), null, 2)], { type: 'application/json' }), 'Story-Studio-可编辑白模场景.json');
     notify('已导出可编辑场景 JSON，可在导演台重新导入。');
   }
 
