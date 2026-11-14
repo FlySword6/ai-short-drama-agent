@@ -1,0 +1,14 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+**/node_modules/
+**/dist/
+**/.vite/
+outputs/
+
+# Local remnants of the pre-monorepo checkout; keep private data out of commits.
+shortdrama-agent-lab/
+shortdrama-agent/
+shortdrama-cli/
+短剧Main/

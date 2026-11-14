@@ -1,0 +1,58 @@
+{
+  "name": "@lyra/main",
+  "version": "0.2.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "desktop:build": "node scripts/build-desktop-helper.mjs",
+    "start": "node --env-file-if-exists=.env dist/main.js",
+    "start:api": "node --env-file-if-exists=.env -e \"process.env.LYRA_RUNTIME_ROLE='api'; require('./dist/main.js')\"",
+    "start:worker": "node --env-file-if-exists=.env -e \"process.env.LYRA_RUNTIME_ROLE='worker'; require('./dist/main.js')\"",
+    "dev": "npm run build && npm start",
+    "dev:api": "npm run build && npm run start:api",
+    "dev:worker": "npm run build && npm run start:worker",
+    "test": "npm run build && node scripts/test-unit.mjs",
+    "db:setup": "node scripts/setup-local-db.mjs",
+    "db:up": "docker compose up -d --wait --wait-timeout 120 postgres",
+    "db:down": "docker compose down",
+    "db:status": "docker compose ps",
+    "db:logs": "docker compose logs --tail=100 postgres",
+    "db:psql": "docker compose exec postgres sh -c 'exec psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"'",
+    "db:migrate": "npm run build && node --env-file-if-exists=.env dist/db/migrate.js",
+    "assets:vector-rebuild": "npm run build && node --env-file-if-exists=.env dist/assets/vector/rebuild.js",
+    "auth:bootstrap": "npm run build && node --env-file-if-exists=.env dist/auth/bootstrap-admin.js",
+    "test:db": "npm run build && node --env-file-if-exists=.env scripts/test-db.mjs",
+    "test:rls": "npm run build && node --test tests/stage1-tenant-isolation.db.test.cjs",
+    "test:novel-db": "npm run build && node --test tests/novel-persistence.db.test.cjs",
+    "test:assets-db": "npm run build && node --test tests/assets.db.test.cjs tests/novel-assets.db.test.cjs",
+    "models:list": "node --env-file=.env examples/models-client.mjs list",
+    "models:text": "node --env-file=.env examples/models-client.mjs text",
+    "models:smoke": "node --env-file=.env scripts/model-smoke.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1164.0",
+    "@aws-sdk/s3-request-presigner": "3.1164.0",
+    "@earendil-works/pi-agent-core": "^0.80.6",
+    "@earendil-works/pi-ai": "^0.80.10",
+    "@lyra/agent": "file:../agent",
+    "@lyra/shared": "file:../shared",
+    "@nestjs/common": "12.1.2",
+    "@nestjs/core": "12.1.2",
+    "@nestjs/platform-fastify": "12.1.2",
+    "@sinclair/typebox": "0.34.52",
+    "@zilliz/milvus2-sdk-node": "^2.6.17",
+    "ajv": "8.20.0",
+    "pg": "^8.16.3",
+    "redis": "6.3.1",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.15",
+    "@types/pg": "^8.15.4",
+    "typescript": "5.9.3"
+  }
+}
